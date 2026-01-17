@@ -1,0 +1,130 @@
+/* You can add global styles to this file, and also import other style files */
+/* src/styles.scss */
+
+@import "tailwindcss";
+@theme {
+  /* Couleurs personnalisées */
+  --color-primary: #2d7a7b;
+  --color-secondary: #1a5f60;
+  --color-accent: #4ecdc4;
+  --color-dark: #1f2937;
+  --color-light: #f9fafb;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+
+  /* Spacing personnalisé*/
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 1.5rem;
+  --spacing-lg: 2rem;
+  --spacing-xl: 3rem;
+
+  /* Font family */
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Classes utilitaires */
+@layer utilities {
+  /* Backgrounds */
+  .bg-primary {
+    background-color: var(--color-primary);
+  }
+
+  .bg-secondary {
+    background-color: var(--color-secondary);
+  }
+
+  .bg-accent {
+    background-color: var(--color-accent);
+  }
+
+  .bg-light {
+    background-color: var(--color-light);
+  }
+
+  /* Text colors */
+  .text-primary {
+    color: var(--color-primary);
+  }
+
+  .text-secondary {
+    color: var(--color-secondary);
+  }
+
+  .text-accent {
+    color: var(--color-accent);
+  }
+
+  .text-dark {
+    color: var(--color-dark);
+  }
+
+  /* Border colors */
+  .border-primary {
+    border-color: var(--color-primary);
+  }
+
+  .border-secondary {
+    border-color: var(--color-secondary);
+  }
+
+  /* Hover states */
+  .hover\:bg-secondary:hover {
+    background-color: var(--color-secondary);
+  }
+
+  .hover\:text-primary:hover {
+    color: var(--color-primary);
+  }
+
+  /* Focus states */
+  .focus\:ring-primary:focus {
+    --tw-ring-color: var(--color-primary);
+  }
+
+  .focus\:border-primary:focus {
+    border-color: var(--color-primary);
+  }
+}
+
+/* Styles globaux */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-light);
+  color: var(--color-dark);
+}
+
+input, textarea, select, button {
+  font-family: inherit;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Classes de composants*/
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-lg font-semibold transition-all duration-200;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-secondary;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 border border-gray-300 rounded-lg transition-all;
+    @apply focus:ring-2 focus:ring-primary focus:border-transparent outline-none;
+  }
+
+  .card {
+    @apply bg-white rounded-lg shadow-md p-6;
+  }
+}
