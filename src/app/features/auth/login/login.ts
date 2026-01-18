@@ -10,7 +10,6 @@ import { Logo } from '../../../shared/components/logo/logo';
   standalone: true,
   imports: [
     CommonModule,
-    // Pour avior les formulaires reactifs
     ReactiveFormsModule,
     Logo
   ],
@@ -57,17 +56,18 @@ export class Login implements OnInit {
 
     const { email, password } = this.loginForm.value;
 
-    // simulation apres je vais lier au back api graph
+    // Simulation API call
     console.log('Login:', { email, password });
 
     // Simulation d'un délai
     setTimeout(() => {
       this.isLoading = false;
 
-      // Simulation : si email contient "admin", on dit que c'est bon
+      // Simulation : si email contient "admin", connexion réussie
       if (email.includes('admin')) {
         console.log('Connexion réussie !');
         // TODO: Rediriger vers le dashboard
+        // this.router.navigate(['/dashboard']);
       } else {
         this.errorMessage = 'Email ou mot de passe incorrect';
       }
@@ -76,9 +76,5 @@ export class Login implements OnInit {
 
   togglePasswordVisibility(): void {
     this.hidePassword = !this.hidePassword;
-  }
-
-  goToRegister(): void {
-    this.router.navigate(['/register']);
   }
 }
