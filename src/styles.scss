@@ -109,22 +109,50 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Classes de composants*/
+
+/* Composants réutilisables */
 @layer components {
-  .btn {
-    @apply px-4 py-2 rounded-lg font-semibold transition-all duration-200;
-  }
-
+  /* Bouton primaire */
   .btn-primary {
-    @apply bg-primary text-white hover:bg-secondary;
+    background-color: var(--color-primary);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
   }
 
+  .btn-primary:hover {
+    background-color: var(--color-secondary);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Champ de saisie */
   .input-field {
-    @apply w-full px-4 py-3 border border-gray-300 rounded-lg transition-all;
-    @apply focus:ring-2 focus:ring-primary focus:border-transparent outline-none;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+    outline: none;
   }
 
+  .input-field:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(45, 122, 123, 0.1);
+  }
+
+  /* Carte */
   .card {
-    @apply bg-white rounded-lg shadow-md p-6;
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
   }
 }

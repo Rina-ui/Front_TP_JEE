@@ -1,11 +1,17 @@
 import { Component, Input } from '@angular/core';
+import {CommonModule} from '@angular/common';
 
 @Component({
   selector: 'app-logo',
+  //ca veut dire que le composant est independant et donc pas need de module
+  standalone: true,
+  //avec le commonModule c'est qu'on importe ce dont a on besoin
+  imports: [CommonModule],
   templateUrl: './logo.html',
-  styleUrls: ['./logo.scss']
+  styleUrl: './logo.css',
 })
-export class LogoComponent {
+export class Logo {
+
   @Input() size: 'sm' | 'md' | 'lg' = 'md';
   @Input() variant: 'full' | 'icon' = 'full';
 
@@ -26,4 +32,5 @@ export class LogoComponent {
     };
     return sizes[this.size];
   }
+
 }

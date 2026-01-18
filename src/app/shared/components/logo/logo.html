@@ -1,1 +1,14 @@
-<p>logo works!</p>
+<div class="flex items-center gap-3">
+  <!-- Icône -->
+  <div
+    [class]="'rounded-lg bg-primary flex items-center justify-center text-white font-bold shadow-md ' + sizeClasses">
+    E
+  </div>
+
+  <!-- Texte -->
+  <span
+    *ngIf="variant === 'full'"
+    [class]="'font-bold text-dark ' + textSizeClasses">
+    Ega<span class="text-primary">Bank</span>
+  </span>
+</div>
