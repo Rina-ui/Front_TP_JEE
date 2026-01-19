@@ -1,1 +1,17 @@
-<p>stat-card works!</p>
+<div class="stat-card">
+  <div class="stat-header">
+    <span class="stat-icon">{{ icon }}</span>
+    <span class="stat-title">{{ title }}</span>
+  </div>
+
+  <div class="stat-value">{{ value }}</div>
+
+  <div class="stat-footer">
+    <span class="stat-subtitle">{{ subtitle }}</span>
+    <span
+      *ngIf="trendValue"
+      [class]="'stat-trend trend-' + trend">
+      {{ trend === 'up' ? '↑' : trend === 'down' ? '↓' : '→' }} {{ trendValue }}
+    </span>
+  </div>
+</div>
