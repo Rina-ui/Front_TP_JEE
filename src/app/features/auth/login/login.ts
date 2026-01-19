@@ -11,7 +11,7 @@ import { AuthService } from '../../../core/services/auth.service';
   templateUrl: './login.html',
   styleUrl: './login.css'
 })
-export class LoginComponent implements OnInit {
+export class Login implements OnInit {
   loginForm!: FormGroup;
   isLoading = false;
   errorMessage = '';
