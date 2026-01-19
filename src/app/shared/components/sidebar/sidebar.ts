@@ -11,7 +11,7 @@ import { Logo } from '../logo/logo';
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.css'
 })
-export class SidebarComponent {
+export class Sidebar{
   menuItems = [
     { icon: '🏠', label: 'Dashboard', route: '/admin/dashboard', active: true },
     { icon: '👥', label: 'Clients', route: '/admin/clients', active: false },

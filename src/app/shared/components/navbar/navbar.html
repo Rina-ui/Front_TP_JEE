@@ -1,1 +1,29 @@
-<p>navbar works!</p>
+<header class="navbar">
+  <div class="navbar-left">
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-subtitle">Bienvenue sur votre tableau de bord</p>
+  </div>
+
+  <div class="navbar-right">
+    <!-- Search -->
+    <div class="search-box">
+      <input type="text" placeholder="Rechercher...">
+      <span class="search-icon">🔍</span>
+    </div>
+
+    <!-- Notifications -->
+    <button class="icon-btn">
+      <span class="badge">3</span>
+      🔔
+    </button>
+
+    <!-- Profile -->
+    <div class="profile">
+      <div class="profile-avatar">A</div>
+      <div class="profile-info">
+        <div class="profile-name">{{ userName }}</div>
+        <div class="profile-role">Administrateur</div>
+      </div>
+    </div>
+  </div>
+</header>
