@@ -17,3 +17,15 @@ export const DELETE_COMPTE = gql`
     deleteCompte(id: $id)
   }
 `;
+
+export const ACTIVER_COMPTE = gql `
+  mutation ActivateCompte($id: ID!) {
+  activateCompte(id: $id)
+  }
+  `;
+
+export const DESACTIVER_COMPTE = gql `
+  mutation DeactivateCompte($id: ID!) {
+    deactivateCompte(id: $id)
+  }
+`;

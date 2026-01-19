@@ -16,8 +16,16 @@ export class TransactionService {
       query: GET_ALL_TRANSACTIONS,
       variables: { numeroCompte },
       fetchPolicy: 'network-only'
-    }).pipe(map(result => result.data.getAllTransactions));
+    }).pipe(
+      map(result => {
+        if (!result.data) {
+          throw new Error('No transactions data returned');
+        }
+        return result.data.getAllTransactions;
+      })
+    );
   }
+
 
   versement(input: VersementInput): Observable<Transaction> {
     return this.apollo.mutate<{ versement: Transaction }>({

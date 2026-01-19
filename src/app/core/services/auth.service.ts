@@ -1,4 +1,3 @@
-// src/app/core/services/auth.service.ts
 import { Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
 import { BehaviorSubject, Observable, map, tap } from 'rxjs';
@@ -39,7 +38,15 @@ export class AuthService {
       query: ME_QUERY,
       fetchPolicy: 'network-only'
     }).pipe(
-      map(result => result.data.me),
+
+      map(result => {
+        const data = result.data;
+        if (!data) {
+          throw new Error('Login failed: no data returned');
+        }
+        return data.me;
+      }),
+
       tap(user => this.currentUserSubject.next(user))
     );
   }
