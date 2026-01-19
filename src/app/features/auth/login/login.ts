@@ -1,4 +1,3 @@
-// src/app/features/auth/login/login.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -10,8 +9,7 @@ import { Logo } from '../../../shared/components/logo/logo';
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
-    Logo
+    ReactiveFormsModule
   ],
   templateUrl: './login.html',
   styleUrl: './login.css'
