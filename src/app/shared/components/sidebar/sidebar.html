@@ -1,1 +1,26 @@
-<p>sidebar works!</p>
+<aside class="sidebar">
+  <!-- Logo -->
+  <div class="sidebar-header">
+    <app-logo size="md" variant="full"></app-logo>
+  </div>
+
+  <!-- Menu -->
+  <nav class="sidebar-nav">
+    <a
+      *ngFor="let item of menuItems"
+      [routerLink]="item.route"
+      routerLinkActive="active"
+      class="nav-item">
+      <span class="nav-icon">{{ item.icon }}</span>
+      <span class="nav-label">{{ item.label }}</span>
+    </a>
+  </nav>
+
+  <!-- Footer -->
+  <div class="sidebar-footer">
+    <button class="logout-btn">
+      <span>🚪</span>
+      <span>Déconnexion</span>
+    </button>
+  </div>
+</aside>
