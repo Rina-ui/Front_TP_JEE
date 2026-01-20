@@ -20,3 +20,15 @@ export interface LoginInput {
   password: string;
   role?: Role;
 }
+
+export interface Client {
+  id: string;
+  email: string;
+  role: Role;
+  firstName: string;
+  lastName: string;
+  dateNaissance: string;
+  city: string;
+  nationality: string;
+  numberNationality: number;
+}

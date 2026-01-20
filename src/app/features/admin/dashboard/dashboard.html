@@ -1,94 +1,216 @@
+<div class="dashboard-full">
 
-<div class="dashboard-layout">
-  <!-- Sidebar -->
-  <app-sidebar></app-sidebar>
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="navbar-left">
+      <div class="logo">
+        <div class="logo-icon">E</div>
+        <span class="logo-text">EgaBank</span>
+      </div>
+      <select class="navbar-dropdown">
+        <option>Finance Dashboard</option>
+        <option>Clients</option>
+        <option>Comptes</option>
+        <option>Transactions</option>
+      </select>
+    </div>
+
+    <div class="navbar-center">
+      <div class="search-box">
+        <input type="text" placeholder="Search or type">
+      </div>
+    </div>
+
+    <div class="navbar-right">
+      <button class="icon-btn">
+        <span class="badge">3</span>
+        🔔
+      </button>
+      <div class="profile">
+        <div class="profile-avatar">{{ currentUserInitials }}</div>
+      </div>
+    </div>
+  </header>
 
   <!-- Main Content -->
-  <div class="dashboard-main">
-    <!-- Navbar -->
-    <app-navbar></app-navbar>
+  <div class="dashboard-content">
 
-    <!-- Content -->
-    <div class="dashboard-content">
+    <!-- Top Row - 3 Cards -->
+    <div class="top-cards">
 
-      <!-- Stats Grid -->
-      <div class="stats-grid">
-        <app-stat-card
-          *ngFor="let stat of stats"
-          [title]="stat.title"
-          [value]="stat.value"
-          [subtitle]="stat.subtitle"
-          [icon]="stat.icon"
-          [trend]="stat.trend"
-          [trendValue]="stat.trendValue">
-        </app-stat-card>
-      </div>
-
-      <!-- Charts Row -->
-      <div class="charts-row">
-        <!-- Chart 1 -->
-        <div class="chart-card">
-          <div class="card-header">
-            <h3>📈 Évolution du Solde</h3>
-          </div>
-          <div class="chart-placeholder">
-            <p>Graphique à venir...</p>
-          </div>
+      <!-- Card 1: VISA + Account -->
+      <div class="card visa-card">
+        <div class="card-mini-header">
+          <span class="card-icon"><span class="card-icon">
+  <i class="fas fa-credit-card"></i>
+</span>
+</span>
+          <span class="card-label">Bills</span>
         </div>
-
-        <!-- Chart 2 -->
-        <div class="chart-card">
-          <div class="card-header">
-            <h3>🎯 Répartition</h3>
-          </div>
-          <div class="chart-placeholder">
-            <p>Graphique circulaire...</p>
-          </div>
+        <div class="visa-section">
+          <div class="visa-logo">VISA</div>
+          <div class="visa-text">Linked to main account</div>
+          <div class="visa-number">••••  2710</div>
+        </div>
+        <div class="card-actions">
+          <button class="card-btn active">Receive</button>
+          <button class="card-btn">Send</button>
+        </div>
+        <div class="balance-info">
+          <span class="balance-label">Monthly Regular Fee: $50.00</span>
         </div>
       </div>
 
-      <!-- Recent Transactions Table -->
-      <div class="table-card">
-        <div class="card-header">
-          <h3>💳 Transactions Récentes</h3>
-          <button class="view-all-btn">Voir tout</button>
+      <!-- Card 2: Financial Overview -->
+      <div class="card financial-card">
+        <div class="card-mini-header">
+          <span class="card-label">Financial Overview</span>
+          <select class="card-dropdown">
+            <option>Weekly</option>
+            <option>Monthly</option>
+            <option>Yearly</option>
+          </select>
         </div>
-        <table class="transactions-table">
+        <div class="financial-main">
+          <div class="total-income">
+            <span class="label">Total Income</span>
+            <span class="value">{{ totalIncome | number:'1.2-2' }} FCFA</span>
+          </div>
+          <div class="total-paid">
+            <span class="value-paid">{{ totalPaid | number:'1.2-2' }} FCFA</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3: Monthly Performance -->
+      <div class="card performance-card">
+        <div class="card-mini-header">
+          <span class="card-label">Monthly Performance</span>
+        </div>
+        <table class="performance-table">
           <thead>
           <tr>
-            <th>Client</th>
-            <th>Type</th>
-            <th>Montant</th>
-            <th>Date</th>
-            <th>Statut</th>
+            <th>Month</th>
+            <th>Income ($)</th>
+            <th>Expenses ($)</th>
+            <th>Profit ($)</th>
           </tr>
           </thead>
           <tbody>
-          <tr>
-            <td>John Doe</td>
-            <td>Virement</td>
-            <td class="amount positive">+5 000 FCFA</td>
-            <td>Aujourd'hui, 14:30</td>
-            <td><span class="status success">Réussi</span></td>
-          </tr>
-          <tr>
-            <td>Jane Smith</td>
-            <td>Retrait</td>
-            <td class="amount negative">-2 500 FCFA</td>
-            <td>Aujourd'hui, 13:15</td>
-            <td><span class="status success">Réussi</span></td>
-          </tr>
-          <tr>
-            <td>Bob Wilson</td>
-            <td>Dépôt</td>
-            <td class="amount positive">+10 000 FCFA</td>
-            <td>Hier, 16:45</td>
-            <td><span class="status pending">En cours</span></td>
+          <tr *ngFor="let row of monthlyPerformance">
+            <td>{{ row.month }}</td>
+            <td>{{ row.income | number:'1.0-0' }}</td>
+            <td>{{ row.expenses | number:'1.0-0' }}</td>
+            <td class="profit">{{ row.profit | number:'1.0-0' }}</td>
           </tr>
           </tbody>
         </table>
       </div>
 
     </div>
+
+    <!-- Middle Row - 3 Charts -->
+    <div class="charts-row">
+
+      <!-- Chart 1: Financial Dashboard Overview -->
+      <div class="chart-card large">
+        <div class="card-header">
+          <h3>Financial Dashboard Overview</h3>
+        </div>
+        <div class="chart-container">
+          <canvas #lineChart></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 2: Growth Analytics -->
+      <div class="chart-card small">
+        <div class="card-header">
+          <h3>Growth Analytics</h3>
+        </div>
+        <div class="gauge-container">
+          <div class="gauge-circle">
+            <svg viewBox="0 0 200 200">
+              <circle cx="100" cy="100" r="80" fill="none" stroke="#e5e7eb" stroke-width="20"/>
+              <circle cx="100" cy="100" r="80" fill="none" stroke="#2d7a7b" stroke-width="20"
+                      stroke-dasharray="440" stroke-dashoffset="110"
+                      transform="rotate(-90 100 100)"/>
+            </svg>
+            <div class="gauge-value">25%</div>
+          </div>
+          <div class="gauge-footer">
+            <span class="gauge-label">Year over Year</span>
+            <span class="gauge-trend">+36%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart 3: Annual Profits -->
+      <div class="chart-card small">
+        <div class="card-header">
+          <h3>Annual Profits 2023</h3>
+        </div>
+        <div class="chart-container">
+          <canvas #doughnutChart></canvas>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bottom Row - Activity Manager (Clients Table) -->
+    <div class="activity-card">
+      <div class="activity-header">
+        <div class="activity-title">
+          <span>Liste des Clients</span>
+        </div>
+        <div class="activity-actions">
+          <button class="filter-btn">⚙️</button>
+          <button class="filter-btn">✕</button>
+          <button class="filter-btn">Filters</button>
+          <button class="add-btn-primary" (click)="openAddClientModal()">
+            + Ajouter un client
+          </button>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table class="activity-table">
+          <thead>
+          <tr>
+            <th>Nom</th>
+            <th>Email</th>
+            <th>Ville</th>
+            <th>Nationalité</th>
+            <th>Date de naissance</th>
+            <th>Comptes</th>
+            <th>Actions</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let client of clients" class="table-row">
+            <td>
+              <div class="user-cell">
+                <div class="user-avatar">{{ getInitials(client.firstName, client.lastName) }}</div>
+                <span>{{ client.firstName }} {{ client.lastName }}</span>
+              </div>
+            </td>
+            <td>{{ client.email }}</td>
+            <td>{{ client.city }}</td>
+            <td>{{ client.nationality }}</td>
+            <td>{{ client.dateNaissance | date:'dd/MM/yyyy' }}</td>
+            <td>
+              <button class="view-comptes-btn" (click)="viewClientComptes(client.id)">
+                {{ getClientComptesCount(client.id) }} compte(s)
+              </button>
+            </td>
+            <td>
+              <button class="action-icon" (click)="editClient(client)">✏️</button>
+              <button class="action-icon" (click)="deleteClient(client.id)">🗑️</button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
 </div>
