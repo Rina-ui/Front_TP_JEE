@@ -56,6 +56,7 @@ export class ClientDashboard implements OnInit {
   loading = true;
   userName = '';
   totalBalance = 0;
+  monthlyIncome = 4250; // Revenus du mois
 
   // Données pour le graphique de flux de trésorerie
   chartData = [
@@ -77,6 +78,35 @@ export class ClientDashboard implements OnInit {
 
   ngOnInit(): void {
     this.loadClientData();
+
+    // DONNÉES DE TEST (à retirer quand vous aurez les vraies données)
+    this.accounts = [
+      {
+        id: '1',
+        numero: 'TG-2024-001-8672',
+        solde: 8672.20,
+        type: 'Compte Courant'
+      },
+      {
+        id: '2',
+        numero: 'TG-2024-002-3785',
+        solde: 3785.35,
+        type: 'Compte Épargne'
+      }
+    ];
+
+    this.transactions = [
+      { id: '1', montant: 3500, type: 'DEPOT', dateTransaction: '2025-03-01', statut: 'VALIDEE', description: 'Virement salaire' },
+      { id: '2', montant: -1200, type: 'RETRAIT', dateTransaction: '2025-03-01', statut: 'VALIDEE', description: 'Paiement loyer' },
+      { id: '3', montant: -89.50, type: 'RETRAIT', dateTransaction: '2025-02-28', statut: 'VALIDEE', description: 'Courses alimentaires' },
+      { id: '4', montant: 750, type: 'DEPOT', dateTransaction: '2025-02-27', statut: 'VALIDEE', description: 'Freelance' },
+      { id: '5', montant: -156.30, type: 'RETRAIT', dateTransaction: '2025-02-26', statut: 'ECHOUEE', description: 'Facture électricité' },
+      { id: '6', montant: -245.99, type: 'RETRAIT', dateTransaction: '2025-02-25', statut: 'VALIDEE', description: 'Achat en ligne' }
+    ];
+
+    this.userName = 'Jean Dupont';
+    this.calculateTotalBalance();
+    this.loading = false;
   }
 
   loadClientData(): void {
@@ -111,7 +141,7 @@ export class ClientDashboard implements OnInit {
   }
 
   getAccountClass(index: number): string {
-    const classes = ['account-emerald', 'account-blue', 'account-purple'];
+    const classes = ['account-emerald', 'account-blue'];
     return classes[index % classes.length];
   }
 
@@ -131,6 +161,13 @@ export class ClientDashboard implements OnInit {
 
   isCredit(transaction: Transaction): boolean {
     return transaction.type === 'DEPOT' || transaction.montant > 0;
+  }
+
+  formatCardNumber(numero: string): string {
+    // Formater le numéro de compte en format carte bancaire (XXXX XXXX XXXX XXXX)
+    const cleaned = numero.replace(/[^0-9]/g, '');
+    const padded = cleaned.padEnd(16, '0');
+    return padded.match(/.{1,4}/g)?.join(' ') || numero;
   }
 
   downloadStatement(accountId: string): void {
@@ -162,5 +199,24 @@ export class ClientDashboard implements OnInit {
 
     // Version temporaire pour tester
     alert(`Téléchargement du relevé pour le compte ${accountId}`);
+  }
+
+  handleQuickAction(action: string): void {
+    console.log('Action rapide:', action);
+
+    switch(action) {
+      case 'transfer':
+        alert('🔄 Virement - Fonctionnalité à implémenter');
+        break;
+      case 'deposit':
+        alert('➕ Dépôt - Fonctionnalité à implémenter');
+        break;
+      case 'withdraw':
+        alert('➖ Retrait - Fonctionnalité à implémenter');
+        break;
+      case 'history':
+        alert('📜 Historique complet - Fonctionnalité à implémenter');
+        break;
+    }
   }
 }

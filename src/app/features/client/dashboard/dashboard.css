@@ -1,15 +1,10 @@
-/* ============================================
-   CONTAINER & LAYOUT
-   ============================================ */
+
 .dashboard-container {
   min-height: 100vh;
   background: linear-gradient(135deg, #f9fafb 0%, #e5e7eb 100%);
   padding: 2rem;
 }
 
-/* ============================================
-   LOADING STATE
-   ============================================ */
 .loading-wrapper {
   display: flex;
   flex-direction: column;
@@ -37,9 +32,6 @@
   to { transform: rotate(360deg); }
 }
 
-/* ============================================
-   HEADER
-   ============================================ */
 .dashboard-header {
   display: flex;
   align-items: center;
@@ -77,150 +69,409 @@
   transform: translateY(-2px);
 }
 
-/* ============================================
-   ACCOUNTS GRID
-   ============================================ */
+/*visa card*/
 .accounts-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
   gap: 1.5rem;
   margin-bottom: 2rem;
 }
 
-.account-card {
-  background: white;
+.visa-card {
+  aspect-ratio: 1.586;
   border-radius: 16px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  padding: 1.75rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
   transition: all 0.3s;
-  border: 1px solid #f3f4f6;
+  position: relative;
+  overflow: hidden;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-.account-card:hover {
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  transform: translateY(-4px);
+.visa-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 200px;
+  height: 200px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
 }
 
-.account-header {
+.visa-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+.account-emerald {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.account-blue {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+}
+
+.account-purple {
+  background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+}
+
+.visa-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.card-chip {
+  width: 50px;
+  height: 40px;
+  background: linear-gradient(135deg, #f9ca24, #f0932b);
+  border-radius: 8px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.chip-line {
+  height: 2px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 2px;
+}
+
+.toggle-btn-white {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: all 0.3s;
+  backdrop-filter: blur(10px);
+}
+
+.toggle-btn-white:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.toggle-btn-white svg {
+  width: 20px;
+  height: 20px;
+}
+
+.visa-card-number {
+  font-family: 'Courier New', monospace;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-align: center;
+  margin: 1rem 0;
+}
+
+.visa-card-number p {
+  margin: 0;
+}
+
+.visa-card-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 1rem;
+}
+
+.card-holder,
+.card-balance {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.card-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.8;
+}
+
+.card-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.card-value-large {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.visa-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-type {
+  font-size: 0.85rem;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.visa-logo {
+  width: 60px;
+  height: auto;
+  opacity: 0.9;
+}
+
+.visa-logo svg {
+  width: 100%;
+  height: auto;
+}
+
+.download-statement-btn {
+  position: absolute;
+  bottom: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.95);
+  color: #1f2937;
+  border: none;
+  padding: 0.625rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s;
+  opacity: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.visa-card:hover .download-statement-btn {
+  bottom: 1rem;
+  opacity: 1;
+}
+
+.download-statement-btn:hover {
+  background: white;
+  transform: translateX(-50%) scale(1.05);
+}
+
+.download-statement-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+
+.quick-actions-card {
+  aspect-ratio: 1.586;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px;
+  padding: 1.75rem;
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+
+.quick-actions-card::before {
+  content: '';
+  position: absolute;
+  top: -100px;
+  right: -100px;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(5deg); }
+}
+
+.quick-actions-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 35px rgba(102, 126, 234, 0.5);
+}
+
+.quick-actions-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 1.5rem;
 }
 
-.account-type-badge {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 600;
+.quick-actions-header h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0;
 }
 
-.account-emerald .account-type-badge {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(20, 184, 166, 0.1) 100%);
-  color: #059669;
+.pulse-indicator {
+  width: 12px;
+  height: 12px;
+  background: #4ade80;
+  border-radius: 50%;
+  box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7);
+  animation: pulse 2s infinite;
 }
 
-.account-blue .account-type-badge {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%);
-  color: #0284c7;
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(74, 222, 128, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0);
+  }
 }
 
-.account-purple .account-type-badge {
-  background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%);
-  color: #9333ea;
-}
-
-.account-type-icon {
-  width: 18px;
-  height: 18px;
-}
-
-.toggle-btn {
-  background: none;
-  border: none;
-  color: #9ca3af;
-  cursor: pointer;
-  padding: 0.25rem;
-  transition: color 0.3s;
-}
-
-.toggle-btn:hover {
-  color: #6b7280;
-}
-
-.toggle-btn svg {
-  width: 20px;
-  height: 20px;
-}
-
-.account-balance-section {
+.action-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
   margin-bottom: 1.5rem;
 }
 
-.balance-label {
-  font-size: 0.75rem;
-  color: #9ca3af;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin: 0 0 0.5rem 0;
-  font-weight: 600;
-}
-
-.balance-amount {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #1f2937;
-  margin: 0 0 0.5rem 0;
-}
-
-.account-number-display {
-  font-size: 0.875rem;
-  color: #6b7280;
-  margin: 0;
-  font-family: 'Courier New', monospace;
-}
-
-.account-actions {
+.action-item {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 1rem;
   display: flex;
-  gap: 0.75rem;
-  padding-top: 1rem;
-  border-top: 1px solid #f3f4f6;
-}
-
-.action-btn {
-  flex: 1;
-  display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
   gap: 0.5rem;
-  padding: 0.625rem 1rem;
-  border: 1px solid #e5e7eb;
-  background: white;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #6b7280;
   cursor: pointer;
   transition: all 0.3s;
 }
 
-.action-btn:hover {
-  background: #f9fafb;
-  border-color: #d1d5db;
-  color: #1f2937;
+.action-item:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
-.action-btn svg {
+.action-item:active {
+  transform: translateY(-2px);
+}
+
+.action-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+
+.action-icon svg {
+  width: 24px;
+  height: 24px;
+  color: white;
+}
+
+.action-icon.transfer {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.action-icon.deposit {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.action-icon.withdraw {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.action-icon.history {
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+}
+
+.action-item:hover .action-icon {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.action-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.stats-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.stat-icon {
+  font-size: 1.5rem;
+}
+
+.stat-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+.stat-value {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.see-more-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  backdrop-filter: blur(10px);
+}
+
+.see-more-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.02);
+}
+
+.see-more-btn svg {
   width: 18px;
   height: 18px;
 }
 
-/* ============================================
-   MAIN GRID (CHART + BALANCE)
-   ============================================ */
+
 .main-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
@@ -234,9 +485,6 @@
   }
 }
 
-/* ============================================
-   CHART CARD (GRAPHIQUE)
-   ============================================ */
 .chart-card {
   background: white;
   border-radius: 16px;
@@ -341,10 +589,7 @@
   color: #9ca3af;
   white-space: nowrap;
 }
-
-/* ============================================
-   TOTAL BALANCE CARD
-   ============================================ */
+/*total balance card*/
 .total-balance-card {
   background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
   border-radius: 16px;
@@ -420,9 +665,7 @@
   font-weight: 600;
 }
 
-/* ============================================
-   TRANSACTIONS CARD
-   ============================================ */
+/*transaction card*/
 .transactions-card {
   background: white;
   border-radius: 16px;
@@ -570,9 +813,6 @@
   color: #b91c1c;
 }
 
-/* ============================================
-   RESPONSIVE DESIGN
-   ============================================ */
 @media (max-width: 768px) {
   .dashboard-container {
     padding: 1rem;
