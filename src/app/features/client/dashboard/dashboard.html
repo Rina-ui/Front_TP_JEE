@@ -2,154 +2,195 @@
 <div class="dashboard-container" *ngIf="loading">
   <div class="loading-wrapper">
     <div class="spinner"></div>
-    <p class="loading-text">Chargement...</p>
+    <p class="loading-text">Chargement de votre espace...</p>
   </div>
 </div>
 
 <!-- Dashboard Content -->
 <div class="dashboard-container" *ngIf="!loading">
+
   <!-- Header -->
   <div class="dashboard-header">
     <div class="header-content">
-      <h1 class="header-title">Tableau de bord</h1>
-      <p class="header-subtitle">Bienvenue {{ userName }}, gérez vos comptes facilement</p>
+      <h1 class="header-title">Bienvenue, {{ userName }} 👋</h1>
+      <p class="header-subtitle">Gérez vos finances en toute simplicité</p>
     </div>
-    <button class="btn-primary">Nouvelle transaction</button>
   </div>
 
-  <!-- Accounts Cards - Style Carte Bancaire -->
-  <div class="accounts-grid">
-    <!-- Cartes bancaires existantes -->
-    <div *ngFor="let account of accounts; let i = index"
-         class="visa-card"
-         [ngClass]="getAccountClass(i)">
-
-      <div class="visa-card-header">
-        <div class="card-chip">
-          <div class="chip-line"></div>
-          <div class="chip-line"></div>
-          <div class="chip-line"></div>
-          <div class="chip-line"></div>
-        </div>
-        <button class="toggle-btn-white" (click)="toggleBalance()">
-          <svg *ngIf="showBalance" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-          </svg>
-          <svg *ngIf="!showBalance" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
-          </svg>
-        </button>
-      </div>
-
-      <div class="visa-card-number">
-        <p *ngIf="showBalance">{{ formatCardNumber(account.numero) }}</p>
-        <p *ngIf="!showBalance">•••• •••• •••• ••••</p>
-      </div>
-
-      <div class="visa-card-details">
-        <div class="card-holder">
-          <span class="card-label">Titulaire</span>
-          <span class="card-value">{{ userName }}</span>
-        </div>
-        <div class="card-balance">
-          <span class="card-label">Solde</span>
-          <span class="card-value-large">{{ showBalance ? (account.solde | number:'1.2-2') : '••••••' }} FCFA</span>
-        </div>
-      </div>
-
-      <div class="visa-card-footer">
-        <div class="card-type">
-          <span>{{ account.type }}</span>
-        </div>
-        <div class="visa-logo">
-          <svg viewBox="0 0 48 16" fill="currentColor">
-            <path d="M19.5 3L16.8 13h-2.7L16.8 3h2.7zm11.4 6.5c0-2.6-3.6-2.7-3.6-3.9 0-.4.4-.7 1.2-.8.4 0 1.6-.1 2.9.5l.5-2.4c-.7-.3-1.7-.5-2.9-.5-3 0-5.2 1.6-5.2 3.9 0 1.7 1.5 2.6 2.7 3.2 1.2.6 1.6 1 1.6 1.5 0 .8-.9 1.1-1.8 1.1-1.5 0-2.3-.2-3.5-.7l-.6 2.7c.8.4 2.3.7 3.8.7 3.2 0 5.3-1.6 5.3-4 0-2.8-3.4-3-3.4-4.3zm8.4 3.5h2.3l-1.2-2.9zm4.2 3H46l-2.3-10h-2.4c-.5 0-1 .3-1.2.8l-4.2 9.2h3.2l.6-1.7h3.9l.4 1.7zm-20-10l-2.5 10h-3l-1.2-6.2c-.1-.4-.2-.7-.6-.9-.6-.4-1.6-.7-2.5-.9l.1-.5H9c.7 0 1.3.4 1.5 1.2l1.4 7.4 3.4-8.6h3.3z"/>
-          </svg>
-        </div>
-      </div>
-
-      <button class="download-statement-btn" (click)="downloadStatement(account.id)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-        </svg>
-        Télécharger relevé
-      </button>
+  <!-- Comptes Section -->
+  <div class="accounts-section">
+    <div class="section-header">
+      <h2>Mes Comptes</h2>
+      <span class="account-count">{{ comptes.length }} compte(s)</span>
     </div>
 
-    <!-- CARTE ACTIONS RAPIDES - LA MAGIE ICI ! -->
-    <div class="quick-actions-card">
-      <div class="quick-actions-header">
-        <h3>Actions rapides</h3>
-        <div class="pulse-indicator"></div>
-      </div>
+    <!-- Grille dynamique: 1 colonne si 1 compte, 2 colonnes si 2+, max 3 colonnes -->
+    <div class="accounts-grid" [ngClass]="{
+      'single-account': comptes.length === 1,
+      'two-accounts': comptes.length === 2,
+      'multiple-accounts': comptes.length > 2
+    }">
 
-      <div class="action-grid">
-        <div class="action-item" (click)="handleQuickAction('transfer')">
-          <div class="action-icon transfer">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
-            </svg>
+      <div *ngFor="let compte of comptes; let i = index"
+           class="visa-card"
+           [ngClass]="getAccountClass(i)"
+           (click)="viewCompteDetails(compte)">
+
+        <div class="visa-card-header">
+          <div class="card-chip">
+            <div class="chip-line"></div>
+            <div class="chip-line"></div>
+            <div class="chip-line"></div>
+            <div class="chip-line"></div>
           </div>
-          <span class="action-label">Virement</span>
+          <button class="toggle-btn-white" (click)="toggleBalance(); $event.stopPropagation()">
+            <svg *ngIf="showBalance" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+            </svg>
+            <svg *ngIf="!showBalance" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+            </svg>
+          </button>
         </div>
 
-        <div class="action-item" (click)="handleQuickAction('deposit')">
-          <div class="action-icon deposit">
+        <div class="visa-card-number">
+          <p *ngIf="showBalance">{{ formatCardNumber(compte.accountNumber) }}</p>
+          <p *ngIf="!showBalance">•••• •••• •••• ••••</p>
+        </div>
+
+        <div class="visa-card-details">
+          <div class="card-holder">
+            <span class="card-label">Titulaire</span>
+            <span class="card-value">{{ userName }}</span>
+          </div>
+          <div class="card-balance">
+            <span class="card-label">Solde disponible</span>
+            <span class="card-value-large">
+              {{ showBalance ? (compte.solde | number:'1.2-2') : '••••••' }} FCFA
+            </span>
+          </div>
+        </div>
+
+        <div class="visa-card-footer">
+          <div class="card-type">
+            <span>{{ getCompteTypeLabel(compte.typeCompte) }}</span>
+          </div>
+          <div class="visa-logo">
+            <svg viewBox="0 0 48 16" fill="currentColor">
+              <path d="M19.5 3L16.8 13h-2.7L16.8 3h2.7zm11.4 6.5c0-2.6-3.6-2.7-3.6-3.9 0-.4.4-.7 1.2-.8.4 0 1.6-.1 2.9.5l.5-2.4c-.7-.3-1.7-.5-2.9-.5-3 0-5.2 1.6-5.2 3.9 0 1.7 1.5 2.6 2.7 3.2 1.2.6 1.6 1 1.6 1.5 0 .8-.9 1.1-1.8 1.1-1.5 0-2.3-.2-3.5-.7l-.6 2.7c.8.4 2.3.7 3.8.7 3.2 0 5.3-1.6 5.3-4 0-2.8-3.4-3-3.4-4.3zm8.4 3.5h2.3l-1.2-2.9zm4.2 3H46l-2.3-10h-2.4c-.5 0-1 .3-1.2.8l-4.2 9.2h3.2l.6-1.7h3.9l.4 1.7zm-20-10l-2.5 10h-3l-1.2-6.2c-.1-.4-.2-.7-.6-.9-.6-.4-1.6-.7-2.5-.9l.1-.5H9c.7 0 1.3.4 1.5 1.2l1.4 7.4 3.4-8.6h3.3z"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="card-hover-overlay">
+          <span class="hover-text">Cliquez pour voir les détails</span>
+        </div>
+      </div>
+
+      <!-- Empty state si aucun compte -->
+      <div class="empty-account-state" *ngIf="comptes.length === 0">
+        <div class="empty-icon">💳</div>
+        <h3>Aucun compte trouvé</h3>
+        <p>Contactez votre conseiller pour ouvrir un compte</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions Rapides + Stats -->
+  <div class="actions-stats-grid">
+
+    <!-- Actions Rapides -->
+    <div class="quick-actions-section">
+      <h3 class="section-title">Actions rapides</h3>
+
+      <div class="action-grid">
+        <button class="action-btn deposit-btn" (click)="handleQuickAction('deposit')">
+          <div class="action-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
           </div>
           <span class="action-label">Dépôt</span>
-        </div>
+          <span class="action-desc">Ajouter de l'argent</span>
+        </button>
 
-        <div class="action-item" (click)="handleQuickAction('withdraw')">
-          <div class="action-icon withdraw">
+        <button class="action-btn withdraw-btn" (click)="handleQuickAction('withdraw')">
+          <div class="action-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
             </svg>
           </div>
           <span class="action-label">Retrait</span>
-        </div>
+          <span class="action-desc">Retirer de l'argent</span>
+        </button>
 
-        <div class="action-item" (click)="handleQuickAction('history')">
-          <div class="action-icon history">
+        <button class="action-btn transfer-btn" (click)="handleQuickAction('transfer')">
+          <div class="action-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+            </svg>
+          </div>
+          <span class="action-label">Virement</span>
+          <span class="action-desc">Transférer</span>
+        </button>
+
+        <button class="action-btn history-btn" (click)="handleQuickAction('history')">
+          <div class="action-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
           </div>
           <span class="action-label">Historique</span>
-        </div>
+          <span class="action-desc">Voir les transactions</span>
+        </button>
       </div>
+    </div>
 
-      <div class="stats-section">
-        <div class="stat-item">
+    <!-- Stats du mois -->
+    <div class="monthly-stats-card">
+      <h3 class="section-title">Statistiques du mois</h3>
+
+      <div class="stats-grid">
+        <div class="stat-card income-stat">
           <div class="stat-icon">📈</div>
-          <div class="stat-info">
-            <span class="stat-label">Ce mois</span>
+          <div class="stat-content">
+            <span class="stat-label">Revenus</span>
             <span class="stat-value">+{{ monthlyIncome | number:'1.0-0' }} FCFA</span>
           </div>
         </div>
-        <div class="stat-item">
+
+        <div class="stat-card expense-stat">
+          <div class="stat-icon">📉</div>
+          <div class="stat-content">
+            <span class="stat-label">Dépenses</span>
+            <span class="stat-value">-{{ monthlyExpenses | number:'1.0-0' }} FCFA</span>
+          </div>
+        </div>
+
+        <div class="stat-card balance-stat">
           <div class="stat-icon">💰</div>
-          <div class="stat-info">
+          <div class="stat-content">
+            <span class="stat-label">Solde total</span>
+            <span class="stat-value">{{ totalBalance | number:'1.2-2' }} FCFA</span>
+          </div>
+        </div>
+
+        <div class="stat-card transaction-stat">
+          <div class="stat-icon">🔄</div>
+          <div class="stat-content">
             <span class="stat-label">Transactions</span>
-            <span class="stat-value">{{ transactions.length }}</span>
+            <span class="stat-value">{{ allTransactions.length }}</span>
           </div>
         </div>
       </div>
-
-      <button class="see-more-btn">
-        <span>Voir plus d'options</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-        </svg>
-      </button>
     </div>
   </div>
 
+  <!-- Chart & Balance -->
   <div class="main-grid">
-    <!-- Cash Flow Chart (GRAPHIQUE) -->
+
+    <!-- Flux de trésorerie -->
     <div class="chart-card">
       <div class="card-header">
         <div>
@@ -164,23 +205,26 @@
       </div>
 
       <div class="chart-container">
-        <div class="chart-bars">
+        <div class="chart-bars" *ngIf="chartData.length > 0">
           <div *ngFor="let item of chartData" class="chart-bar-wrapper">
             <div class="chart-bar-inner">
               <div class="chart-bar" [style.height]="getChartHeight(item.value)">
-                <div class="chart-tooltip">{{ item.value }} FCFA</div>
+                <div class="chart-tooltip">{{ item.value | number:'1.0-0' }} FCFA</div>
               </div>
             </div>
             <span class="chart-label">{{ item.date }}</span>
           </div>
         </div>
+        <div class="empty-chart" *ngIf="chartData.length === 0">
+          <p>Pas encore de données</p>
+        </div>
       </div>
     </div>
 
-    <!-- Total Balance Card -->
+    <!-- Répartition des comptes -->
     <div class="total-balance-card">
       <div class="balance-header">
-        <h3>Solde Total</h3>
+        <h3>Répartition</h3>
         <div class="balance-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
@@ -190,26 +234,35 @@
 
       <div class="balance-amount">
         <h2>{{ totalBalance | number:'1.2-2' }} FCFA</h2>
-        <p>Tous les comptes combinés</p>
+        <p>Solde total combiné</p>
       </div>
 
-      <div class="balance-list">
-        <div *ngFor="let account of accounts" class="balance-item">
-          <span>{{ account.type }}</span>
-          <span>{{ account.solde | number:'1.2-2' }} FCFA</span>
+      <div class="balance-list" *ngIf="comptes.length > 0">
+        <div *ngFor="let compte of comptes" class="balance-item">
+          <div class="balance-item-left">
+            <div class="balance-dot" [style.background]="compte.typeCompte === 'EPARGNE' ? '#10b981' : '#3b82f6'"></div>
+            <span>{{ getCompteTypeLabel(compte.typeCompte) }}</span>
+          </div>
+          <span class="balance-amount-text">{{ compte.solde | number:'1.2-2' }} FCFA</span>
         </div>
+      </div>
+
+      <div class="empty-balance" *ngIf="comptes.length === 0">
+        <p>Aucun compte disponible</p>
       </div>
     </div>
   </div>
 
-  <!-- Recent Transactions -->
+  <!-- Transactions récentes -->
   <div class="transactions-card">
     <div class="transactions-header">
       <h2>Activités récentes</h2>
-      <button class="view-all-btn">Voir tout →</button>
+      <button class="view-all-btn" (click)="viewAllTransactions()" *ngIf="allTransactions.length > 0">
+        Voir tout →
+      </button>
     </div>
 
-    <div class="table-wrapper">
+    <div class="table-wrapper" *ngIf="recentTransactions.length > 0">
       <table class="transactions-table">
         <thead>
         <tr>
@@ -220,7 +273,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr *ngFor="let transaction of transactions">
+        <tr *ngFor="let transaction of recentTransactions">
           <td>
             <div class="transaction-info">
               <div class="transaction-icon" [class.credit]="isCredit(transaction)" [class.debit]="!isCredit(transaction)">
@@ -232,8 +285,8 @@
                 </svg>
               </div>
               <div>
-                <p class="transaction-name">{{ transaction.description || transaction.type }}</p>
-                <p class="transaction-type">{{ transaction.type }}</p>
+                <p class="transaction-name">{{ transaction.type }}</p>
+                <p class="transaction-type">{{ formatDate(transaction.dateTransaction) }}</p>
               </div>
             </div>
           </td>
@@ -246,13 +299,20 @@
             </p>
           </td>
           <td>
-              <span class="status-badge" [class.completed]="transaction.statut === 'VALIDEE'" [class.failed]="transaction.statut !== 'VALIDEE'">
-                {{ transaction.statut }}
+              <span class="status-badge completed">
+                Validée
               </span>
           </td>
         </tr>
         </tbody>
       </table>
     </div>
+
+    <div class="empty-transactions" *ngIf="recentTransactions.length === 0">
+      <div class="empty-icon">📊</div>
+      <h3>Aucune transaction</h3>
+      <p>Vos transactions apparaîtront ici</p>
+    </div>
   </div>
+
 </div>

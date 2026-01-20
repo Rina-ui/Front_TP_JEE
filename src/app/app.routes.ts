@@ -1,23 +1,45 @@
 import { Routes } from '@angular/router';
-import { Login } from './features/auth/login/login';
-import { Dashboard } from './features/admin/dashboard/dashboard';
 import { authGuard } from './core/guards/auth-guard';
-import { Register } from './features/auth/register/register';
-import { ClientDashboard } from './features/client/dashboard/dashboard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/client/dashboard', pathMatch: 'full' }, // Redirige vers dashboard
-  { path: 'login', component: Login },
-  { path: 'register', component: Register },
+  {
+    path: '',
+    redirectTo: '/login',
+    pathMatch: 'full'
+  },
+  {
+    path: 'login',
+    loadComponent: () => import('./features/auth/login/login').then(m => m.Login)
+  },
   {
     path: 'admin/dashboard',
-    component: Dashboard,
-    // canActivate: [authGuard]  ← Commentez cette ligne temporairement
+    loadComponent: () => import('./features/admin/dashboard/dashboard').then(m => m.Dashboard),
+    canActivate: [authGuard],
+    data: { roles: ['ADMIN', 'AGENT'] }
   },
   {
     path: 'client/dashboard',
-    component: ClientDashboard,
-    // Pas de guard pour tester
+    loadComponent: () => import('./features/client/dashboard/dashboard').then(m => m.ClientDashboard),
+    canActivate: [authGuard],
+    data: { roles: ['CLIENT'] }
   },
-  { path: '**', redirectTo: '/client/dashboard' }
+  {
+    path: 'clients/register',
+    loadComponent: () => import('./features/clients/register-client/register-client').then(m => m.RegisterClient),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'comptes',
+    loadComponent: () => import('./features/comptes/comptes/comptes').then(m => m.Comptes),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'transactions',
+    loadComponent: () => import('./features/transactions/transactions/transactions').then(m => m.Transactions),
+    canActivate: [authGuard]
+  },
+  {
+    path: '**',
+    redirectTo: '/dashboard'
+  }
 ];

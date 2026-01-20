@@ -122,6 +122,16 @@ export class Comptes implements OnInit {
     }
   }
 
+  getTotalSolde(): number {
+    if (!this.comptes) return 0;
+    return this.comptes.reduce((sum, compte) => sum + (compte.solde || 0), 0);
+  }
+
+  getActiveAccountsCount(): number {
+    if (!this.comptes) return 0;
+    return this.comptes.filter(compte => compte.solde > 0).length;
+  }
+
   closeModal(): void {
     this.showModal = false;
     this.compteForm.reset({ typeCompte: 'COURANT', solde: 0 });
@@ -149,7 +159,7 @@ export class Comptes implements OnInit {
 
   viewTransactions(compte: Compte): void {
     this.router.navigate(['/transactions'], {
-      queryParams: { numeroCompte: compte.numeroCompte }
+      queryParams: { numeroCompte: compte.accountNumber }
     });
   }
 

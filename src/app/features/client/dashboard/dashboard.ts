@@ -1,139 +1,175 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule, DecimalPipe } from '@angular/common';
-import { Apollo, gql } from 'apollo-angular';
-
-interface Account {
-  id: string;
-  numero: string;
-  solde: number;
-  type: string;
-}
-
-interface Transaction {
-  id: string;
-  montant: number;
-  type: string;
-  dateTransaction: string;
-  statut: string;
-  description?: string;
-}
-
-const GET_CLIENT_DATA = gql`
-  query GetClientData {
-    currentUser {
-      id
-      nom
-      prenom
-      comptes {
-        id
-        numero
-        solde
-        type
-      }
-    }
-    transactions(first: 10) {
-      id
-      montant
-      type
-      dateTransaction
-      statut
-      description
-    }
-  }
-`;
+import {Component, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {Router} from '@angular/router';
+import {CompteService} from '../../../core/services/compte.service';
+import {TransactionService} from '../../../core/services/transaction.service';
+import {AuthService} from '../../../core/services/auth.service';
+import {Compte} from '../../../core/models/compte.model';
+import {Transaction, TypeTransaction} from '../../../core/models/transaction.model';
 
 @Component({
   selector: 'app-client-dashboard',
   standalone: true,
   imports: [CommonModule],
   templateUrl: 'dashboard.html',
-  styleUrls: ['dashboard.css']
+  styleUrl: 'dashboard.css'
 })
 export class ClientDashboard implements OnInit {
   showBalance = true;
-  accounts: Account[] = [];
-  transactions: Transaction[] = [];
+  comptes: Compte[] = [];
+  allTransactions: Transaction[] = [];
   loading = true;
   userName = '';
+  userId = '';
   totalBalance = 0;
-  monthlyIncome = 4250; // Revenus du mois
+  monthlyIncome = 0;
+  monthlyExpenses = 0;
 
-  // Données pour le graphique de flux de trésorerie
-  chartData = [
-    { date: '15 Sep', value: 1200 },
-    { date: '20 Sep', value: 1800 },
-    { date: '25 Sep', value: 1500 },
-    { date: '30 Sep', value: 2200 },
-    { date: '05 Oct', value: 1900 },
-    { date: '10 Oct', value: 2500 },
-    { date: '15 Oct', value: 2100 },
-    { date: '20 Oct', value: 2800 },
-    { date: '25 Oct', value: 3200 },
-    { date: '30 Oct', value: 2900 },
-    { date: '05 Nov', value: 3500 },
-    { date: '10 Nov', value: 3100 }
-  ];
+  chartData: { date: string; value: number }[] = [];
 
-  constructor(private apollo: Apollo) {}
+  constructor(
+    private compteService: CompteService,
+    private transactionService: TransactionService,
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
+    this.loadUserInfo();
     this.loadClientData();
+  }
 
-    // DONNÉES DE TEST (à retirer quand vous aurez les vraies données)
-    this.accounts = [
-      {
-        id: '1',
-        numero: 'TG-2024-001-8672',
-        solde: 8672.20,
-        type: 'Compte Courant'
-      },
-      {
-        id: '2',
-        numero: 'TG-2024-002-3785',
-        solde: 3785.35,
-        type: 'Compte Épargne'
-      }
-    ];
-
-    this.transactions = [
-      { id: '1', montant: 3500, type: 'DEPOT', dateTransaction: '2025-03-01', statut: 'VALIDEE', description: 'Virement salaire' },
-      { id: '2', montant: -1200, type: 'RETRAIT', dateTransaction: '2025-03-01', statut: 'VALIDEE', description: 'Paiement loyer' },
-      { id: '3', montant: -89.50, type: 'RETRAIT', dateTransaction: '2025-02-28', statut: 'VALIDEE', description: 'Courses alimentaires' },
-      { id: '4', montant: 750, type: 'DEPOT', dateTransaction: '2025-02-27', statut: 'VALIDEE', description: 'Freelance' },
-      { id: '5', montant: -156.30, type: 'RETRAIT', dateTransaction: '2025-02-26', statut: 'ECHOUEE', description: 'Facture électricité' },
-      { id: '6', montant: -245.99, type: 'RETRAIT', dateTransaction: '2025-02-25', statut: 'VALIDEE', description: 'Achat en ligne' }
-    ];
-
-    this.userName = 'Jean Dupont';
-    this.calculateTotalBalance();
-    this.loading = false;
+  loadUserInfo(): void {
+    const user = this.authService.getUser();
+    if (user) {
+      this.userId = user.id;
+      this.userName = `${user.email || ''} ${user.email || ''}`.trim() || user.email;
+    }
   }
 
   loadClientData(): void {
-    this.apollo
-      .watchQuery<any>({
-        query: GET_CLIENT_DATA
-      })
-      .valueChanges.subscribe({
-      next: (result) => {
-        const user = result.data?.currentUser;
-        if (user) {
-          this.userName = `${user.prenom} ${user.nom}`;
-          this.accounts = user.comptes || [];
-          this.calculateTotalBalance();
-        }
-        this.transactions = result.data?.transactions || [];
-        this.loading = false;
+    // Charger les comptes du client connecté
+    this.compteService.getComptesByClient(this.userId).subscribe({
+      next: (comptes) => {
+        this.comptes = comptes;
+        this.calculateTotalBalance();
+
+        // Charger les transactions pour chaque compte
+        this.loadAllTransactions();
+
+        console.log('✅ Comptes chargés:', comptes);
       },
       error: (error) => {
-        console.error('Erreur chargement données:', error);
+        console.error('❌ Erreur comptes:', error);
         this.loading = false;
       }
     });
   }
 
+  loadAllTransactions(): void {
+    if (this.comptes.length === 0) {
+      this.loading = false;
+      return;
+    }
+
+    let loadedCount = 0;
+    this.allTransactions = [];
+
+    this.comptes.forEach(compte => {
+      this.transactionService.getAllTransactions(compte.accountNumber).subscribe({
+        next: (transactions) => {
+          this.allTransactions.push(...transactions);
+          loadedCount++;
+
+          if (loadedCount === this.comptes.length) {
+            // Toutes les transactions sont chargées
+            this.allTransactions.sort((a, b) =>
+              new Date(b.dateTransaction).getTime() - new Date(a.dateTransaction).getTime()
+            );
+            this.calculateMonthlyStats();
+            this.generateChartData();
+            this.loading = false;
+            console.log('✅ Transactions chargées:', this.allTransactions);
+          }
+        },
+        error: (error) => {
+          console.error('❌ Erreur transactions:', error);
+          loadedCount++;
+          if (loadedCount === this.comptes.length) {
+            this.loading = false;
+          }
+        }
+      });
+    });
+  }
+
   calculateTotalBalance(): void {
-    this.totalBalance = this.accounts.reduce((sum, acc) => sum + acc.solde, 0);
+    this.totalBalance = this.comptes.reduce((sum, compte) => sum + compte.solde, 0);
+  }
+
+  calculateMonthlyStats(): void {
+    const now = new Date();
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    this.monthlyIncome = 0;
+    this.monthlyExpenses = 0;
+
+    this.allTransactions.forEach(transaction => {
+      const transactionDate = new Date(transaction.dateTransaction);
+      if (transactionDate >= firstDayOfMonth) {
+        if (transaction.type === TypeTransaction.DEPOT) {
+          this.monthlyIncome += transaction.montant;
+        } else if (transaction.type === TypeTransaction.RETRAIT) {
+          this.monthlyExpenses += transaction.montant;
+        }
+      }
+    });
+  }
+
+
+  generateChartData(): void {
+    // Générer les 12 derniers points de données (derniers 12 jours avec transactions)
+    const groupedByDate = new Map<string, number>();
+
+    this.allTransactions.forEach(transaction => {
+      const date = new Date(transaction.dateTransaction);
+      const dateKey = `${date.getDate()}/${date.getMonth() + 1}`;
+
+      const currentValue = groupedByDate.get(dateKey) || 0;
+
+      if (transaction.type === TypeTransaction.DEPOT) {
+        groupedByDate.set(dateKey, currentValue + transaction.montant);
+      } else if (transaction.type === TypeTransaction.RETRAIT) {
+        groupedByDate.set(dateKey, currentValue - transaction.montant);
+      }
+    });
+
+    // Convertir en tableau et prendre les 12 derniers
+    this.chartData = Array.from(groupedByDate.entries())
+      .map(([date, value]) => ({ date, value }))
+      .slice(-12);
+
+    // Si pas assez de données, générer des données par défaut
+    if (this.chartData.length === 0) {
+      this.chartData = this.generateDefaultChartData();
+    }
+  }
+
+  generateDefaultChartData(): { date: string; value: number }[] {
+    const data = [];
+    const now = new Date();
+
+    for (let i = 11; i >= 0; i--) {
+      const date = new Date(now);
+      date.setDate(date.getDate() - i);
+
+      data.push({
+        date: `${date.getDate()}/${date.getMonth() + 1}`,
+        value: Math.random() * 2000 + 1000
+      });
+    }
+
+    return data;
   }
 
   toggleBalance(): void {
@@ -141,18 +177,23 @@ export class ClientDashboard implements OnInit {
   }
 
   getAccountClass(index: number): string {
-    const classes = ['account-emerald', 'account-blue'];
+    const classes = ['account-emerald', 'account-blue', 'account-purple', 'account-orange'];
     return classes[index % classes.length];
   }
 
   getChartHeight(value: number): string {
+    if (this.chartData.length === 0) return '0%';
     const maxValue = Math.max(...this.chartData.map(d => d.value));
     return `${(value / maxValue) * 100}%`;
   }
 
   formatDate(dateString: string): string {
     const date = new Date(dateString);
-    return date.toLocaleDateString('fr-FR');
+    return date.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
   }
 
   formatAmount(amount: number): string {
@@ -160,63 +201,75 @@ export class ClientDashboard implements OnInit {
   }
 
   isCredit(transaction: Transaction): boolean {
-    return transaction.type === 'DEPOT' || transaction.montant > 0;
+    return transaction.type === TypeTransaction.DEPOT;
   }
 
   formatCardNumber(numero: string): string {
-    // Formater le numéro de compte en format carte bancaire (XXXX XXXX XXXX XXXX)
     const cleaned = numero.replace(/[^0-9]/g, '');
     const padded = cleaned.padEnd(16, '0');
     return padded.match(/.{1,4}/g)?.join(' ') || numero;
   }
 
-  downloadStatement(accountId: string): void {
-    // Logique pour télécharger le relevé de compte
-    console.log('Téléchargement du relevé pour le compte:', accountId);
+  getCompteTypeLabel(type: string): string {
+    return type === 'EPARGNE' ? 'Compte Épargne' : 'Compte Courant';
+  }
 
-    // TODO: Appel GraphQL pour générer et télécharger le relevé
-    // Exemple d'implémentation:
-    /*
-    this.apollo.query({
-      query: gql`
-        query GenerateStatement($accountId: ID!) {
-          generateAccountStatement(accountId: $accountId) {
-            url
-          }
-        }
-      `,
-      variables: { accountId }
-    }).subscribe({
-      next: (result: any) => {
-        const url = result.data.generateAccountStatement.url;
-        window.open(url, '_blank');
-      },
-      error: (error) => {
-        console.error('Erreur lors du téléchargement du relevé:', error);
-      }
+  viewCompteDetails(compte: Compte): void {
+    this.router.navigate(['/transactions'], {
+      queryParams: { numeroCompte: compte.accountNumber }
     });
-    */
-
-    // Version temporaire pour tester
-    alert(`Téléchargement du relevé pour le compte ${accountId}`);
   }
 
   handleQuickAction(action: string): void {
-    console.log('Action rapide:', action);
+    const firstCompte = this.comptes[0];
+
+    if (!firstCompte) {
+      alert('Aucun compte disponible');
+      return;
+    }
 
     switch(action) {
-      case 'transfer':
-        alert('🔄 Virement - Fonctionnalité à implémenter');
-        break;
       case 'deposit':
-        alert('➕ Dépôt - Fonctionnalité à implémenter');
+        this.router.navigate(['/transactions'], {
+          queryParams: {
+            numeroCompte: firstCompte.accountNumber,
+            action: 'versement'
+          }
+        });
         break;
       case 'withdraw':
-        alert('➖ Retrait - Fonctionnalité à implémenter');
+        this.router.navigate(['/transactions'], {
+          queryParams: {
+            numeroCompte: firstCompte.accountNumber,
+            action: 'retrait'
+          }
+        });
+        break;
+      case 'transfer':
+        this.router.navigate(['/transactions'], {
+          queryParams: {
+            numeroCompte: firstCompte.accountNumber,
+            action: 'virement'
+          }
+        });
         break;
       case 'history':
-        alert('📜 Historique complet - Fonctionnalité à implémenter');
+        this.router.navigate(['/transactions'], {
+          queryParams: { numeroCompte: firstCompte.accountNumber }
+        });
         break;
     }
+  }
+
+  viewAllTransactions(): void {
+    if (this.comptes.length > 0) {
+      this.router.navigate(['/transactions'], {
+        queryParams: { numeroCompte: this.comptes[0].accountNumber }
+      });
+    }
+  }
+
+  get recentTransactions(): Transaction[] {
+    return this.allTransactions.slice(0, 6);
   }
 }

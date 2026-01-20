@@ -11,6 +11,7 @@ export interface Compte {
   actif: boolean;
   clientId: string;
   clientNom?: string;
+  createdAt: string;
 }
 
 export interface CreateCompteInput {

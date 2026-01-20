@@ -65,7 +65,7 @@ export class Transactions implements OnInit {
     this.transactionService.getAllTransactions(numeroCompte).subscribe({
       next: (transactions) => {
         this.transactions = transactions.sort((a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          new Date(b.dateTransaction).getTime() - new Date(a.dateTransaction).getTime()
         );
         this.loading = false;
         console.log('✅ Transactions chargées:', transactions);
@@ -80,7 +80,7 @@ export class Transactions implements OnInit {
   loadCompteInfo(numeroCompte: string): void {
     this.compteService.getAllComptes().subscribe({
       next: (comptes) => {
-        this.compte = comptes.find(c => c.numeroCompte === numeroCompte) || null;
+        this.compte = comptes.find(c => c.accountNumber === numeroCompte) || null;
       },
       error: (error) => console.error('❌ Erreur compte:', error)
     });
@@ -128,7 +128,7 @@ export class Transactions implements OnInit {
     } else if (this.modalType === 'VIREMENT') {
       this.transactionService.virement({
         numeroCompteSource: this.numeroCompte,
-        numeroCompteDestinataire: this.transactionForm.value.numeroCompteDestinataire,
+        numeroCompteDestination: this.transactionForm.value.numeroCompteDestination,
         montant
       }).subscribe({
         next: () => this.handleSuccess(),

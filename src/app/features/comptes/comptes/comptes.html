@@ -38,7 +38,8 @@
       </div>
       <div class="stat-content">
         <span class="stat-label">Solde Total</span>
-        <span class="stat-value">{{ comptes.reduce((sum, c) => sum + c.solde, 0) | number:'1.0-0' }} FCFA</span>
+        <!-- CORRECTION: Suppression de la syntaxe incorrecte -->
+        <span class="stat-value">{{ getTotalSolde() | number:'1.0-0' }} FCFA</span>
       </div>
     </div>
 
@@ -48,7 +49,8 @@
       </div>
       <div class="stat-content">
         <span class="stat-label">Comptes Actifs</span>
-        <span class="stat-value">{{ comptes.filter(c => c.solde > 0).length }}</span>
+        <!-- CORRECTION: Utilisation d'une méthode du composant -->
+        <span class="stat-value">{{ getActiveAccountsCount() }}</span>
       </div>
     </div>
   </div>
@@ -63,7 +65,7 @@
           <div class="compte-avatar">{{ getClientInitials(compte.clientId) }}</div>
           <div class="compte-info">
             <h3>{{ getClientName(compte.clientId) }}</h3>
-            <span class="compte-numero">{{ compte.numeroCompte }}</span>
+            <span class="compte-numero">{{ compte.accountNumber }}</span>
           </div>
         </div>
 

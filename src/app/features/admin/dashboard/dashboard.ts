@@ -7,7 +7,7 @@ import { CompteService } from '../../../core/services/compte.service';
 import { TransactionService } from '../../../core/services/transaction.service';
 import { Client } from '../../../core/models/user.model';
 import { Compte } from '../../../core/models/compte.model';
-import { Transaction } from '../../../core/models/transaction.model';
+import {Transaction, TypeTransaction} from '../../../core/models/transaction.model';
 import { Router } from '@angular/router';
 
 Chart.register(...registerables);
@@ -92,8 +92,13 @@ export class Dashboard implements OnInit, AfterViewInit {
   }
 
   loadAllTransactions(): void {
+    if (this.comptes.length === 0) {
+      return;
+    }
+
     this.comptes.forEach(compte => {
-      this.transactionService.getAllTransactions(compte.numeroCompte).subscribe({
+      // Utiliser numeroCompte au lieu de accountNumber
+      this.transactionService.getAllTransactions(compte.accountNumber).subscribe({
         next: (transactions) => {
           this.allTransactions.push(...transactions);
           this.calculateMonthlyPerformance();
@@ -115,11 +120,10 @@ export class Dashboard implements OnInit, AfterViewInit {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const currentMonth = new Date().getMonth();
 
-    // Regrouper les transactions par mois
     const monthlyData = new Map<string, { income: number; expenses: number }>();
 
     this.allTransactions.forEach(transaction => {
-      const date = new Date(transaction.createdAt);
+      const date = new Date(transaction.dateTransaction);
       const monthKey = months[date.getMonth()];
 
       if (!monthlyData.has(monthKey)) {
@@ -128,14 +132,14 @@ export class Dashboard implements OnInit, AfterViewInit {
 
       const data = monthlyData.get(monthKey)!;
 
-      if (transaction.type === 'VERSEMENT') {
+      if (transaction.type === TypeTransaction.DEPOT) {
         data.income += transaction.montant;
-      } else if (transaction.type === 'RETRAIT') {
+      }
+      else if (transaction.type === TypeTransaction.RETRAIT) {
         data.expenses += transaction.montant;
       }
     });
 
-    // Créer le tableau de performance (derniers 8 mois)
     this.monthlyPerformance = [];
     for (let i = 7; i >= 0; i--) {
       const monthIndex = (currentMonth - i + 12) % 12;
@@ -150,6 +154,7 @@ export class Dashboard implements OnInit, AfterViewInit {
       });
     }
   }
+
 
   getClientComptesCount(clientId: string): number {
     return this.comptes.filter(c => c.clientId === clientId).length;

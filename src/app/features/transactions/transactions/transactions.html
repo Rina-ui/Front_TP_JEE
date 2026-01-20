@@ -69,16 +69,16 @@
           <div class="transaction-header">
             <div class="transaction-info">
               <h3>{{ transaction.type }}</h3>
-              <span class="transaction-date">{{ transaction.createdAt | date:'dd/MM/yyyy à HH:mm' }}</span>
+              <span class="transaction-date">{{ transaction.dateTransaction | date:'dd/MM/yyyy à HH:mm' }}</span>
             </div>
             <div class="transaction-amount" [style.color]="getTransactionColor(transaction.type)">
               {{ getTransactionSign(transaction.type) }}{{ transaction.montant | number:'1.2-2' }} FCFA
             </div>
           </div>
 
-          <div class="transaction-meta" *ngIf="transaction.numeroCompteDestinataire">
+          <div class="transaction-meta" *ngIf="transaction.numeroCompteDestination">
             <span class="meta-label">Vers:</span>
-            <span class="meta-value">{{ transaction.numeroCompteDestinataire }}</span>
+            <span class="meta-value">{{ transaction.numeroCompteDestination }}</span>
           </div>
         </div>
       </div>
@@ -121,7 +121,7 @@
 
     <div class="modal-info-banner" *ngIf="compte">
       <span class="info-label">Compte source:</span>
-      <span class="info-value">{{ compte.numeroCompte }}</span>
+      <span class="info-value">{{ compte.accountNumber }}</span>
       <span class="info-solde">Solde: {{ compte.solde | number:'1.2-2' }} FCFA</span>
     </div>
 
@@ -146,9 +146,9 @@
         <select formControlName="numeroCompteDestinataire">
           <option value="">Sélectionnez un compte</option>
           <option *ngFor="let c of comptes"
-                  [value]="c.numeroCompte"
-                  [disabled]="c.numeroCompte === numeroCompte">
-            {{ c.numeroCompte }} - Solde: {{ c.solde | number:'1.0-0' }} FCFA
+                  [value]="c.accountNumber"
+                  [disabled]="c.accountNumber === numeroCompte">
+            {{ c.accountNumber }} - Solde: {{ c.solde | number:'1.0-0' }} FCFA
           </option>
         </select>
       </div>
