@@ -1,0 +1,166 @@
+<div class="comptes-container">
+
+  <!-- Header -->
+  <div class="page-header">
+    <button class="back-btn" (click)="goBack()">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      Retour
+    </button>
+
+    <div class="header-content">
+      <h1>💳 Gestion des Comptes</h1>
+      <p *ngIf="selectedClientId">Comptes de {{ getClientName(selectedClientId) }}</p>
+      <p *ngIf="!selectedClientId">Tous les comptes bancaires</p>
+    </div>
+
+    <button class="btn-add" (click)="openModal()">
+      + Nouveau Compte
+    </button>
+  </div>
+
+  <!-- Statistiques -->
+  <div class="stats-cards">
+    <div class="stat-card">
+      <div class="stat-icon" style="background: linear-gradient(135deg, #2d7a7b 0%, #1a5f60 100%);">
+        💰
+      </div>
+      <div class="stat-content">
+        <span class="stat-label">Total Comptes</span>
+        <span class="stat-value">{{ comptes.length }}</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+        📊
+      </div>
+      <div class="stat-content">
+        <span class="stat-label">Solde Total</span>
+        <span class="stat-value">{{ comptes.reduce((sum, c) => sum + c.solde, 0) | number:'1.0-0' }} FCFA</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+        🏦
+      </div>
+      <div class="stat-content">
+        <span class="stat-label">Comptes Actifs</span>
+        <span class="stat-value">{{ comptes.filter(c => c.solde > 0).length }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Liste des comptes -->
+  <div class="comptes-grid">
+    <div class="compte-card" *ngFor="let compte of comptes"
+         [style.border-left-color]="getTypeCompteColor(compte.typeCompte)">
+
+      <div class="compte-header">
+        <div class="compte-avatar-section">
+          <div class="compte-avatar">{{ getClientInitials(compte.clientId) }}</div>
+          <div class="compte-info">
+            <h3>{{ getClientName(compte.clientId) }}</h3>
+            <span class="compte-numero">{{ compte.numeroCompte }}</span>
+          </div>
+        </div>
+
+        <div class="compte-type-badge" [style.background-color]="getTypeCompteColor(compte.typeCompte)">
+          {{ getTypeCompteLabel(compte.typeCompte) }}
+        </div>
+      </div>
+
+      <div class="compte-solde-section">
+        <span class="solde-label">Solde disponible</span>
+        <span class="solde-value">{{ compte.solde | number:'1.2-2' }} <span class="currency">FCFA</span></span>
+      </div>
+
+      <div class="compte-meta">
+        <div class="meta-item">
+          <span class="meta-icon">📅</span>
+          <span class="meta-text">Créé le {{ compte.createdAt | date:'dd/MM/yyyy' }}</span>
+        </div>
+      </div>
+
+      <div class="compte-actions">
+        <button class="action-btn primary" (click)="viewTransactions(compte)">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M2 5h12M2 8h12M2 11h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          Voir Transactions
+        </button>
+        <button class="action-btn danger" (click)="deleteCompte(compte.id)">
+          🗑️
+        </button>
+      </div>
+    </div>
+
+    <!-- Carte vide si aucun compte -->
+    <div class="empty-state" *ngIf="comptes.length === 0 && !loading">
+      <div class="empty-icon">💳</div>
+      <h3>Aucun compte trouvé</h3>
+      <p>Créez votre premier compte bancaire</p>
+      <button class="btn-empty" (click)="openModal()">+ Créer un compte</button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Chargement des comptes...</p>
+  </div>
+
+</div>
+
+<!-- Modal Création Compte -->
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <h2>Nouveau Compte Bancaire</h2>
+      <button class="modal-close" (click)="closeModal()">✕</button>
+    </div>
+
+    <form [formGroup]="compteForm" (ngSubmit)="onSubmit()">
+
+      <div class="form-group">
+        <label>Client <span class="required">*</span></label>
+        <select formControlName="clientId" [disabled]="!!selectedClientId">
+          <option value="">Sélectionnez un client</option>
+          <option *ngFor="let client of clients" [value]="client.id">
+            {{ client.firstName }} {{ client.lastName }} - {{ client.email }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Type de compte <span class="required">*</span></label>
+        <div class="type-selector">
+          <label class="type-option" *ngFor="let option of typeCompteOptions">
+            <input type="radio" formControlName="typeCompte" [value]="option.value">
+            <span class="type-label">{{ option.label }}</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Solde initial <span class="required">*</span></label>
+        <div class="input-with-suffix">
+          <input type="number" formControlName="solde" min="0" step="100">
+          <span class="suffix">FCFA</span>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" (click)="closeModal()">Annuler</button>
+        <button type="submit" class="btn-submit" [disabled]="compteForm.invalid">
+          ✓ Créer le compte
+        </button>
+      </div>
+
+    </form>
+
+  </div>
+</div>

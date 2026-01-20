@@ -1,0 +1,173 @@
+<div class="transactions-container">
+
+  <!-- Header -->
+  <div class="page-header">
+    <button class="back-btn" (click)="goBack()">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      Retour
+    </button>
+
+    <div class="header-content">
+      <h1>💸 Transactions</h1>
+      <p *ngIf="compte">Compte {{ compte.accountNumber }}</p>
+    </div>
+  </div>
+
+  <!-- Compte Info Card -->
+  <div class="compte-info-card" *ngIf="compte">
+    <div class="info-left">
+      <div class="compte-badge" [style.background]="compte.typeCompte === 'EPARGNE' ? '#10b981' : '#2d7a7b'">
+        {{ compte.typeCompte === 'EPARGNE' ? '💎 Épargne' : '💳 Courant' }}
+      </div>
+      <div class="compte-numero-large">{{ compte.accountNumber }}</div>
+    </div>
+    <div class="info-right">
+      <span class="solde-label">Solde disponible</span>
+      <span class="solde-value-large">{{ compte.solde | number:'1.2-2' }} <span class="currency">FCFA</span></span>
+    </div>
+  </div>
+
+  <!-- Actions rapides -->
+  <div class="quick-actions">
+    <button class="action-card versement" (click)="openModal('VERSEMENT')">
+      <div class="action-icon">⬇️</div>
+      <span class="action-label">Versement</span>
+      <span class="action-desc">Déposer de l'argent</span>
+    </button>
+
+    <button class="action-card retrait" (click)="openModal('RETRAIT')">
+      <div class="action-icon">⬆️</div>
+      <span class="action-label">Retrait</span>
+      <span class="action-desc">Retirer de l'argent</span>
+    </button>
+
+    <button class="action-card virement" (click)="openModal('VIREMENT')">
+      <div class="action-icon">🔄</div>
+      <span class="action-label">Virement</span>
+      <span class="action-desc">Transférer vers un compte</span>
+    </button>
+  </div>
+
+  <!-- Liste des transactions -->
+  <div class="transactions-list">
+    <div class="list-header">
+      <h2>Historique des transactions</h2>
+      <span class="transaction-count">{{ transactions.length }} transaction(s)</span>
+    </div>
+
+    <div class="transactions-timeline">
+      <div class="transaction-item" *ngFor="let transaction of transactions"
+           [style.border-left-color]="getTransactionColor(transaction.type)">
+
+        <div class="transaction-icon" [style.background]="getTransactionColor(transaction.type)">
+          {{ getTransactionIcon(transaction.type) }}
+        </div>
+
+        <div class="transaction-content">
+          <div class="transaction-header">
+            <div class="transaction-info">
+              <h3>{{ transaction.type }}</h3>
+              <span class="transaction-date">{{ transaction.createdAt | date:'dd/MM/yyyy à HH:mm' }}</span>
+            </div>
+            <div class="transaction-amount" [style.color]="getTransactionColor(transaction.type)">
+              {{ getTransactionSign(transaction.type) }}{{ transaction.montant | number:'1.2-2' }} FCFA
+            </div>
+          </div>
+
+          <div class="transaction-meta" *ngIf="transaction.numeroCompteDestinataire">
+            <span class="meta-label">Vers:</span>
+            <span class="meta-value">{{ transaction.numeroCompteDestinataire }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty state -->
+      <div class="empty-transactions" *ngIf="transactions.length === 0 && !loading">
+        <div class="empty-icon">📊</div>
+        <h3>Aucune transaction</h3>
+        <p>Commencez par effectuer une transaction</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Chargement des transactions...</p>
+  </div>
+
+</div>
+
+<!-- Modal Transaction -->
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <div class="modal-title-section">
+        <div class="modal-icon" [style.background]="
+          modalType === 'VERSEMENT' ? '#10b981' :
+          modalType === 'RETRAIT' ? '#ef4444' : '#f59e0b'">
+          {{ modalType === 'VERSEMENT' ? '⬇️' : modalType === 'RETRAIT' ? '⬆️' : '🔄' }}
+        </div>
+        <h2>
+          {{ modalType === 'VERSEMENT' ? 'Nouveau Versement' :
+          modalType === 'RETRAIT' ? 'Nouveau Retrait' : 'Nouveau Virement' }}
+        </h2>
+      </div>
+      <button class="modal-close" (click)="closeModal()">✕</button>
+    </div>
+
+    <div class="modal-info-banner" *ngIf="compte">
+      <span class="info-label">Compte source:</span>
+      <span class="info-value">{{ compte.numeroCompte }}</span>
+      <span class="info-solde">Solde: {{ compte.solde | number:'1.2-2' }} FCFA</span>
+    </div>
+
+    <form [formGroup]="transactionForm" (ngSubmit)="onSubmit()">
+
+      <div class="form-group">
+        <label>Montant <span class="required">*</span></label>
+        <div class="amount-input-wrapper">
+          <input
+            type="number"
+            formControlName="montant"
+            placeholder="0.00"
+            min="1"
+            step="100"
+            class="amount-input">
+          <span class="currency-label">FCFA</span>
+        </div>
+      </div>
+
+      <div class="form-group" *ngIf="modalType === 'VIREMENT'">
+        <label>Compte destinataire <span class="required">*</span></label>
+        <select formControlName="numeroCompteDestinataire">
+          <option value="">Sélectionnez un compte</option>
+          <option *ngFor="let c of comptes"
+                  [value]="c.numeroCompte"
+                  [disabled]="c.numeroCompte === numeroCompte">
+            {{ c.numeroCompte }} - Solde: {{ c.solde | number:'1.0-0' }} FCFA
+          </option>
+        </select>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" (click)="closeModal()">
+          Annuler
+        </button>
+        <button type="submit" class="btn-submit"
+                [disabled]="transactionForm.invalid"
+                [style.background]="
+                  modalType === 'VERSEMENT' ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' :
+                  modalType === 'RETRAIT' ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' :
+                  'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)'">
+          ✓ Confirmer {{ modalType.toLowerCase() }}
+        </button>
+      </div>
+
+    </form>
+
+  </div>
+</div>

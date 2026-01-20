@@ -1,0 +1,229 @@
+<div class="register-container">
+
+  <!-- Header avec retour -->
+  <div class="register-header">
+    <button class="back-btn" (click)="cancel()">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      Retour
+    </button>
+  </div>
+
+  <!-- Carte principale -->
+  <div class="register-card">
+
+    <!-- En-tête avec logo -->
+    <div class="card-header-section">
+      <div class="logo-big">
+        <div class="logo-icon-big">E</div>
+      </div>
+      <h1 class="title">Nouveau Client</h1>
+      <p class="subtitle">Créez un compte client en 3 étapes simples</p>
+    </div>
+
+    <!-- Indicateur de progression -->
+    <div class="progress-indicator">
+      <div class="step" [class.active]="currentStep >= 1" [class.completed]="currentStep > 1">
+        <div class="step-circle">
+          <span *ngIf="currentStep > 1">✓</span>
+          <span *ngIf="currentStep <= 1">1</span>
+        </div>
+        <span class="step-label">Identité</span>
+      </div>
+      <div class="step-line" [class.completed]="currentStep > 1"></div>
+      <div class="step" [class.active]="currentStep >= 2" [class.completed]="currentStep > 2">
+        <div class="step-circle">
+          <span *ngIf="currentStep > 2">✓</span>
+          <span *ngIf="currentStep <= 2">2</span>
+        </div>
+        <span class="step-label">Connexion</span>
+      </div>
+      <div class="step-line" [class.completed]="currentStep > 2"></div>
+      <div class="step" [class.active]="currentStep >= 3">
+        <div class="step-circle">3</div>
+        <span class="step-label">Localisation</span>
+      </div>
+    </div>
+
+    <!-- Formulaire -->
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+
+      <!-- Étape 1: Informations personnelles -->
+      <div class="form-step" *ngIf="currentStep === 1">
+        <h2 class="step-title">Informations personnelles</h2>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Prénom <span class="required">*</span></label>
+            <input
+              type="text"
+              formControlName="firstName"
+              placeholder="Ex: Jean"
+              [class.error]="f['firstName'].invalid && f['firstName'].touched">
+            <span class="error-text" *ngIf="f['firstName'].invalid && f['firstName'].touched">
+              Prénom requis (min. 2 caractères)
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label>Nom <span class="required">*</span></label>
+            <input
+              type="text"
+              formControlName="lastName"
+              placeholder="Ex: Dupont"
+              [class.error]="f['lastName'].invalid && f['lastName'].touched">
+            <span class="error-text" *ngIf="f['lastName'].invalid && f['lastName'].touched">
+              Nom requis (min. 2 caractères)
+            </span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Date de naissance <span class="required">*</span></label>
+          <input
+            type="date"
+            formControlName="dateNaissance"
+            [class.error]="f['dateNaissance'].invalid && f['dateNaissance'].touched">
+          <span class="error-text" *ngIf="f['dateNaissance'].invalid && f['dateNaissance'].touched">
+            Date de naissance requise
+          </span>
+        </div>
+      </div>
+
+      <!-- Étape 2: Coordonnées -->
+      <div class="form-step" *ngIf="currentStep === 2">
+        <h2 class="step-title">Informations de connexion</h2>
+
+        <div class="form-group">
+          <label>Email <span class="required">*</span></label>
+          <input
+            type="email"
+            formControlName="email"
+            placeholder="exemple@email.com"
+            [class.error]="f['email'].invalid && f['email'].touched">
+          <span class="error-text" *ngIf="f['email'].invalid && f['email'].touched">
+            Email valide requis
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label>Mot de passe <span class="required">*</span></label>
+          <input
+            type="password"
+            formControlName="password"
+            placeholder="Min. 6 caractères"
+            [class.error]="f['password'].invalid && f['password'].touched">
+          <span class="error-text" *ngIf="f['password'].invalid && f['password'].touched">
+            Mot de passe requis (min. 6 caractères)
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label>Confirmer le mot de passe <span class="required">*</span></label>
+          <input
+            type="password"
+            formControlName="confirmPassword"
+            placeholder="Retapez le mot de passe"
+            [class.error]="f['confirmPassword'].invalid && f['confirmPassword'].touched">
+          <span class="error-text" *ngIf="f['password'].value !== f['confirmPassword'].value && f['confirmPassword'].touched">
+            Les mots de passe ne correspondent pas
+          </span>
+        </div>
+      </div>
+
+      <!-- Étape 3: Localisation -->
+      <div class="form-step" *ngIf="currentStep === 3">
+        <h2 class="step-title">Informations de localisation</h2>
+
+        <div class="form-group">
+          <label>Ville <span class="required">*</span></label>
+          <select
+            formControlName="city"
+            [class.error]="f['city'].invalid && f['city'].touched">
+            <option value="">Sélectionnez une ville</option>
+            <option value="Lomé">Lomé</option>
+            <option value="Kara">Kara</option>
+            <option value="Sokodé">Sokodé</option>
+            <option value="Atakpamé">Atakpamé</option>
+            <option value="Kpalimé">Kpalimé</option>
+            <option value="Dapaong">Dapaong</option>
+          </select>
+          <span class="error-text" *ngIf="f['city'].invalid && f['city'].touched">
+            Ville requise
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label>Nationalité <span class="required">*</span></label>
+          <select
+            formControlName="nationality"
+            [class.error]="f['nationality'].invalid && f['nationality'].touched">
+            <option value="">Sélectionnez une nationalité</option>
+            <option value="Togolaise">Togolaise</option>
+            <option value="Béninoise">Béninoise</option>
+            <option value="Ghanéenne">Ghanéenne</option>
+            <option value="Nigérienne">Nigérienne</option>
+            <option value="Burkinabè">Burkinabè</option>
+            <option value="Autre">Autre</option>
+          </select>
+          <span class="error-text" *ngIf="f['nationality'].invalid && f['nationality'].touched">
+            Nationalité requise
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label>Numéro de pièce d'identité <span class="required">*</span></label>
+          <input
+            type="text"
+            formControlName="numberNationality"
+            placeholder="Ex: 12345678"
+            [class.error]="f['numberNationality'].invalid && f['numberNationality'].touched">
+          <span class="error-text" *ngIf="f['numberNationality'].invalid && f['numberNationality'].touched">
+            Numéro valide requis (chiffres uniquement)
+          </span>
+        </div>
+      </div>
+
+      <!-- Messages -->
+      <div class="alert alert-error" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <div class="alert alert-success" *ngIf="successMessage">
+        {{ successMessage }}
+      </div>
+
+      <!-- Boutons de navigation -->
+      <div class="form-actions">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          *ngIf="currentStep > 1"
+          (click)="previousStep()">
+          Précédent
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-primary"
+          *ngIf="currentStep < totalSteps"
+          (click)="nextStep()"
+          [disabled]="!isStepValid(currentStep)">
+          Suivant
+        </button>
+
+        <button
+          type="submit"
+          class="btn btn-success"
+          *ngIf="currentStep === totalSteps"
+          [disabled]="loading || registerForm.invalid">
+          <span *ngIf="!loading">✓ Créer le client</span>
+          <span *ngIf="loading">Création en cours...</span>
+        </button>
+      </div>
+
+    </form>
+
+  </div>
+</div>

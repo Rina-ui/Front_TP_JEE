@@ -1,11 +1,14 @@
-// features/admin/dashboard/dashboard.ts
 import { Component, OnInit, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Chart, registerables } from 'chart.js';
 import { AuthService } from '../../../core/services/auth.service';
+import { ClientService } from '../../../core/services/client.service';
 import { CompteService } from '../../../core/services/compte.service';
+import { TransactionService } from '../../../core/services/transaction.service';
 import { Client } from '../../../core/models/user.model';
 import { Compte } from '../../../core/models/compte.model';
+import { Transaction } from '../../../core/models/transaction.model';
+import { Router } from '@angular/router';
 
 Chart.register(...registerables);
 
@@ -20,38 +23,27 @@ export class Dashboard implements OnInit, AfterViewInit {
   @ViewChild('lineChart') lineChart!: ElementRef<HTMLCanvasElement>;
   @ViewChild('doughnutChart') doughnutChart!: ElementRef<HTMLCanvasElement>;
 
-  // Données de l'utilisateur connecté
   currentUserInitials = 'AD';
+  totalIncome = 0;
+  totalPaid = 0;
+  monthlyPerformance: any[] = [];
 
-  // Données financières
-  totalIncome = 23154.80;
-  totalPaid = 8145.20;
-
-  monthlyPerformance = [
-    { month: 'May', income: 15200, expenses: 9500, profit: 5700 },
-    { month: 'Jun', income: 16500, expenses: 10200, profit: 6300 },
-    { month: 'Jul', income: 17800, expenses: 10800, profit: 7000 },
-    { month: 'Aug', income: 18200, expenses: 11100, profit: 7100 },
-    { month: 'Sep', income: 19100, expenses: 11500, profit: 7600 },
-    { month: 'Oct', income: 20300, expenses: 12000, profit: 8300 },
-    { month: 'Nov', income: 21500, expenses: 12500, profit: 9000 },
-    { month: 'Dec', income: 23194, expenses: 13700, profit: 9494 },
-  ];
-
-  // Données depuis l'API
   clients: Client[] = [];
   comptes: Compte[] = [];
+  allTransactions: Transaction[] = [];
   loading = true;
 
   constructor(
     private authService: AuthService,
-    private compteService: CompteService
+    private clientService: ClientService,
+    private compteService: CompteService,
+    private transactionService: TransactionService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
     this.loadUserInfo();
-    this.loadClients();
-    this.loadComptes();
+    this.loadAllData();
   }
 
   ngAfterViewInit(): void {
@@ -68,47 +60,95 @@ export class Dashboard implements OnInit, AfterViewInit {
     }
   }
 
-  loadClients(): void {
-    // TODO: Créer clientService.getAllClients()
-    // Pour l'instant, données fictives
-    this.clients = [
-      {
-        id: '1',
-        email: 'john.doe@example.com',
-        role: 'CLIENT' as any,
-        firstName: 'John',
-        lastName: 'Doe',
-        dateNaissance: '1990-05-15',
-        city: 'Lomé',
-        nationality: 'Togolaise',
-        numberNationality: 12345678
+  loadAllData(): void {
+    // Charger les clients
+    this.clientService.getAllClients().subscribe({
+      next: (clients) => {
+        this.clients = clients;
+        console.log('✅ Clients chargés:', clients);
       },
-      {
-        id: '2',
-        email: 'jane.smith@example.com',
-        role: 'CLIENT' as any,
-        firstName: 'Jane',
-        lastName: 'Smith',
-        dateNaissance: '1985-08-22',
-        city: 'Kara',
-        nationality: 'Togolaise',
-        numberNationality: 87654321
-      }
-    ];
-  }
+      error: (error) => console.error('❌ Erreur clients:', error)
+    });
 
-  loadComptes(): void {
+    // Charger les comptes
     this.compteService.getAllComptes().subscribe({
       next: (comptes) => {
         this.comptes = comptes;
-        this.loading = false;
         console.log('✅ Comptes chargés:', comptes);
+
+        // Calculer les totaux à partir des comptes
+        this.calculateFinancialData();
+
+        // Charger les transactions pour chaque compte
+        this.loadAllTransactions();
+
+        this.loading = false;
       },
       error: (error) => {
-        console.error('❌ Erreur chargement comptes:', error);
+        console.error('❌ Erreur comptes:', error);
         this.loading = false;
       }
     });
+  }
+
+  loadAllTransactions(): void {
+    this.comptes.forEach(compte => {
+      this.transactionService.getAllTransactions(compte.numeroCompte).subscribe({
+        next: (transactions) => {
+          this.allTransactions.push(...transactions);
+          this.calculateMonthlyPerformance();
+        },
+        error: (error) => console.error('❌ Erreur transactions:', error)
+      });
+    });
+  }
+
+  calculateFinancialData(): void {
+    // Calculer le total income (somme de tous les soldes)
+    this.totalIncome = this.comptes.reduce((sum, compte) => sum + compte.solde, 0);
+
+    // Calculer total paid (exemple: 35% du total income)
+    this.totalPaid = this.totalIncome * 0.35;
+  }
+
+  calculateMonthlyPerformance(): void {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const currentMonth = new Date().getMonth();
+
+    // Regrouper les transactions par mois
+    const monthlyData = new Map<string, { income: number; expenses: number }>();
+
+    this.allTransactions.forEach(transaction => {
+      const date = new Date(transaction.createdAt);
+      const monthKey = months[date.getMonth()];
+
+      if (!monthlyData.has(monthKey)) {
+        monthlyData.set(monthKey, { income: 0, expenses: 0 });
+      }
+
+      const data = monthlyData.get(monthKey)!;
+
+      if (transaction.type === 'VERSEMENT') {
+        data.income += transaction.montant;
+      } else if (transaction.type === 'RETRAIT') {
+        data.expenses += transaction.montant;
+      }
+    });
+
+    // Créer le tableau de performance (derniers 8 mois)
+    this.monthlyPerformance = [];
+    for (let i = 7; i >= 0; i--) {
+      const monthIndex = (currentMonth - i + 12) % 12;
+      const monthKey = months[monthIndex];
+      const data = monthlyData.get(monthKey) || { income: 0, expenses: 0 };
+
+      this.monthlyPerformance.push({
+        month: monthKey,
+        income: data.income,
+        expenses: data.expenses,
+        profit: data.income - data.expenses
+      });
+    }
   }
 
   getClientComptesCount(clientId: string): number {
@@ -120,36 +160,45 @@ export class Dashboard implements OnInit, AfterViewInit {
   }
 
   viewClientComptes(clientId: string): void {
-    console.log('Voir comptes du client:', clientId);
-    // TODO: Navigation vers page comptes
+    this.router.navigate(['/comptes'], { queryParams: { clientId } });
   }
 
   editClient(client: Client): void {
-    console.log('Éditer client:', client);
-    // TODO: Ouvrir modal d'édition
+    this.router.navigate(['/clients/edit', client.id]);
   }
 
   deleteClient(clientId: string): void {
     if (confirm('Êtes-vous sûr de vouloir supprimer ce client ?')) {
-      console.log('Supprimer client:', clientId);
-      // TODO: Appel API suppression
+      this.clientService.deleteClient(clientId).subscribe({
+        next: () => {
+          console.log('✅ Client supprimé');
+          this.loadAllData(); // Recharger les données
+        },
+        error: (error) => console.error('❌ Erreur suppression:', error)
+      });
     }
   }
 
   openAddClientModal(): void {
-    console.log('Ouvrir modal ajout client');
-    // TODO: Ouvrir modal
+    this.router.navigate(['/clients/register']);
   }
 
   createLineChart(): void {
+    if (!this.lineChart) return;
+
+    const labels = this.monthlyPerformance.map(m => m.month);
+    const incomeData = this.monthlyPerformance.map(m => m.income);
+    const expensesData = this.monthlyPerformance.map(m => m.expenses);
+    const profitData = this.monthlyPerformance.map(m => m.profit);
+
     new Chart(this.lineChart.nativeElement, {
       type: 'line',
       data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        labels,
         datasets: [
           {
             label: 'Expenses',
-            data: [5, 10, 8, 12, 15, 18, 16, 20, 22, 24, 26, 28],
+            data: expensesData,
             borderColor: '#ef4444',
             backgroundColor: 'rgba(239, 68, 68, 0.1)',
             tension: 0.4,
@@ -157,7 +206,7 @@ export class Dashboard implements OnInit, AfterViewInit {
           },
           {
             label: 'Income',
-            data: [10, 15, 13, 18, 22, 26, 24, 28, 30, 32, 35, 38],
+            data: incomeData,
             borderColor: '#2d7a7b',
             backgroundColor: 'rgba(45, 122, 123, 0.1)',
             tension: 0.4,
@@ -165,7 +214,7 @@ export class Dashboard implements OnInit, AfterViewInit {
           },
           {
             label: 'Profit',
-            data: [3, 8, 6, 10, 13, 16, 14, 18, 20, 22, 24, 26],
+            data: profitData,
             borderColor: '#f59e0b',
             backgroundColor: 'rgba(245, 158, 11, 0.1)',
             tension: 0.4,
@@ -203,12 +252,18 @@ export class Dashboard implements OnInit, AfterViewInit {
   }
 
   createDoughnutChart(): void {
+    if (!this.doughnutChart) return;
+
+    // Calculer les données du doughnut à partir des comptes
+    const comptesData = this.comptes.slice(0, 3).map(c => c.solde);
+    const labels = this.comptes.slice(0, 3).map(c => `${c.solde.toFixed(0)} FCFA`);
+
     new Chart(this.doughnutChart.nativeElement, {
       type: 'doughnut',
       data: {
-        labels: ['$12K', '$8K', '$4K'],
+        labels,
         datasets: [{
-          data: [12000, 8000, 4000],
+          data: comptesData,
           backgroundColor: ['#2d7a7b', '#4ecdc4', '#a7f3d0'],
           borderWidth: 0
         }]
