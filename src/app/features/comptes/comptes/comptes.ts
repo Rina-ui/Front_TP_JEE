@@ -124,12 +124,12 @@ export class Comptes implements OnInit {
 
   getTotalSolde(): number {
     if (!this.comptes) return 0;
-    return this.comptes.reduce((sum, compte) => sum + (compte.solde || 0), 0);
+    return this.comptes.reduce((sum, compte) => sum + (compte.sold || 0), 0);
   }
 
   getActiveAccountsCount(): number {
     if (!this.comptes) return 0;
-    return this.comptes.filter(compte => compte.solde > 0).length;
+    return this.comptes.filter(compte => compte.sold > 0).length;
   }
 
   closeModal(): void {

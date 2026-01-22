@@ -6,13 +6,12 @@ export enum TypeCompte {
 export interface Compte {
   id: string;
   accountNumber: string;
-  solde: number;
+  sold: number;
   typeCompte: TypeCompte;
   actif: boolean;
-  clientId: string;
-  clientNom?: string;
   createdAt: string;
 }
+
 
 export interface CreateCompteInput {
   solde: number;

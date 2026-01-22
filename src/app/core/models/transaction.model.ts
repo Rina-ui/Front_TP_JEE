@@ -6,14 +6,15 @@ export enum TypeTransaction {
 
 export interface Transaction {
   id: string;
-  type: TypeTransaction;
-  montant: number;
+  typeTransaction: TypeTransaction;
+  amount: number;
   dateTransaction: string;
   description?: string;
   numeroCompteSource?: string;
   numeroCompteDestination?: string;
   soldeApres: number;
 }
+
 
 export interface VersementInput {
   numeroCompte: string;

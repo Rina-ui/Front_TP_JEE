@@ -25,7 +25,7 @@
     </div>
     <div class="info-right">
       <span class="solde-label">Solde disponible</span>
-      <span class="solde-value-large">{{ compte.solde | number:'1.2-2' }} <span class="currency">FCFA</span></span>
+      <span class="solde-value-large">{{ compte.sold | number:'1.2-2' }} <span class="currency">FCFA</span></span>
     </div>
   </div>
 
@@ -59,20 +59,20 @@
 
     <div class="transactions-timeline">
       <div class="transaction-item" *ngFor="let transaction of transactions"
-           [style.border-left-color]="getTransactionColor(transaction.type)">
+           [style.border-left-color]="getTransactionColor(transaction.typeTransaction)">
 
-        <div class="transaction-icon" [style.background]="getTransactionColor(transaction.type)">
-          {{ getTransactionIcon(transaction.type) }}
+        <div class="transaction-icon" [style.background]="getTransactionColor(transaction.typeTransaction)">
+          {{ getTransactionIcon(transaction.typeTransaction) }}
         </div>
 
         <div class="transaction-content">
           <div class="transaction-header">
             <div class="transaction-info">
-              <h3>{{ transaction.type }}</h3>
+              <h3>{{ transaction.typeTransaction }}</h3>
               <span class="transaction-date">{{ transaction.dateTransaction | date:'dd/MM/yyyy à HH:mm' }}</span>
             </div>
-            <div class="transaction-amount" [style.color]="getTransactionColor(transaction.type)">
-              {{ getTransactionSign(transaction.type) }}{{ transaction.montant | number:'1.2-2' }} FCFA
+            <div class="transaction-amount" [style.color]="getTransactionColor(transaction.typeTransaction)">
+              {{ getTransactionSign(transaction.typeTransaction) }}{{ transaction.amount | number:'1.2-2' }} FCFA
             </div>
           </div>
 
@@ -122,7 +122,7 @@
     <div class="modal-info-banner" *ngIf="compte">
       <span class="info-label">Compte source:</span>
       <span class="info-value">{{ compte.accountNumber }}</span>
-      <span class="info-solde">Solde: {{ compte.solde | number:'1.2-2' }} FCFA</span>
+      <span class="info-solde">Solde: {{ compte.sold | number:'1.2-2' }} FCFA</span>
     </div>
 
     <form [formGroup]="transactionForm" (ngSubmit)="onSubmit()">
@@ -148,7 +148,7 @@
           <option *ngFor="let c of comptes"
                   [value]="c.accountNumber"
                   [disabled]="c.accountNumber === numeroCompte">
-            {{ c.accountNumber }} - Solde: {{ c.solde | number:'1.0-0' }} FCFA
+            {{ c.accountNumber }} - Solde: {{ c.sold | number:'1.0-0' }} FCFA
           </option>
         </select>
       </div>

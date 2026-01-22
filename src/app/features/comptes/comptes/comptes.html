@@ -62,9 +62,7 @@
 
       <div class="compte-header">
         <div class="compte-avatar-section">
-          <div class="compte-avatar">{{ getClientInitials(compte.clientId) }}</div>
           <div class="compte-info">
-            <h3>{{ getClientName(compte.clientId) }}</h3>
             <span class="compte-numero">{{ compte.accountNumber }}</span>
           </div>
         </div>
@@ -76,7 +74,7 @@
 
       <div class="compte-solde-section">
         <span class="solde-label">Solde disponible</span>
-        <span class="solde-value">{{ compte.solde | number:'1.2-2' }} <span class="currency">FCFA</span></span>
+        <span class="solde-value">{{ compte.sold | number:'1.2-2' }} <span class="currency">FCFA</span></span>
       </div>
 
       <div class="compte-meta">

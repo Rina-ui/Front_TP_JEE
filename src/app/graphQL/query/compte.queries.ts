@@ -5,7 +5,7 @@ export const GET_ALL_COMPTES = gql`
     getAllComptes {
       id
       accountNumber
-      solde
+      sold
       typeCompte
       actif
       clientId
@@ -19,7 +19,7 @@ export const GET_COMPTES_BY_CLIENT = gql`
     getComptesByClient(clientId: $clientId) {
       id
       accountNumber
-      solde
+      sold
       typeCompte
       actif
     }

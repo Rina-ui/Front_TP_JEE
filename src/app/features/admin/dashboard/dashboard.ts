@@ -110,7 +110,7 @@ export class Dashboard implements OnInit, AfterViewInit {
 
   calculateFinancialData(): void {
     // Calculer le total income (somme de tous les soldes)
-    this.totalIncome = this.comptes.reduce((sum, compte) => sum + compte.solde, 0);
+    this.totalIncome = this.comptes.reduce((sum, compte) => sum + compte.sold, 0);
 
     // Calculer total paid (exemple: 35% du total income)
     this.totalPaid = this.totalIncome * 0.35;
@@ -132,12 +132,13 @@ export class Dashboard implements OnInit, AfterViewInit {
 
       const data = monthlyData.get(monthKey)!;
 
-      if (transaction.type === TypeTransaction.DEPOT) {
-        data.income += transaction.montant;
+      if (transaction.typeTransaction === TypeTransaction.DEPOT) {
+        data.income += transaction.amount;
       }
-      else if (transaction.type === TypeTransaction.RETRAIT) {
-        data.expenses += transaction.montant;
+      else if (transaction.typeTransaction === TypeTransaction.RETRAIT) {
+        data.expenses += transaction.amount;
       }
+
     });
 
     this.monthlyPerformance = [];
@@ -156,9 +157,14 @@ export class Dashboard implements OnInit, AfterViewInit {
   }
 
 
-  getClientComptesCount(clientId: string): number {
-    return this.comptes.filter(c => c.clientId === clientId).length;
+  // getClientComptesCount(clientId: string): number {
+  //   return this.comptes.filter(c => c.clientId === clientId).length;
+  // }
+
+  getClientComptesCount(_: string): number {
+    return this.comptes.length;
   }
+
 
   getInitials(firstName: string, lastName: string): string {
     return `${firstName[0]}${lastName[0]}`.toUpperCase();
@@ -260,8 +266,8 @@ export class Dashboard implements OnInit, AfterViewInit {
     if (!this.doughnutChart) return;
 
     // Calculer les données du doughnut à partir des comptes
-    const comptesData = this.comptes.slice(0, 3).map(c => c.solde);
-    const labels = this.comptes.slice(0, 3).map(c => `${c.solde.toFixed(0)} FCFA`);
+    const comptesData = this.comptes.slice(0, 3).map(c => c.sold);
+    const labels = this.comptes.slice(0, 3).map(c => `${c.sold.toFixed(0)} FCFA`);
 
     new Chart(this.doughnutChart.nativeElement, {
       type: 'doughnut',
