@@ -9,11 +9,13 @@ export interface Compte {
   sold: number;
   typeCompte: TypeCompte;
   actif: boolean;
-  createdAt: string;
+  clientId: string;
+  createdAt?: string;
 }
 
-
+// ✅ Correspond au schéma GraphQL CompteDTOInput
 export interface CreateCompteInput {
-  solde: number;
+  accountNumber?: string;
+  sold: number;
   typeCompte: TypeCompte;
 }

@@ -140,9 +140,9 @@ export class Comptes implements OnInit {
   onSubmit(): void {
     if (this.compteForm.invalid) return;
 
-    const { clientId, typeCompte, solde } = this.compteForm.value;
+    const { clientId, typeCompte, sold } = this.compteForm.value;
 
-    this.compteService.createCompte(clientId, { typeCompte, solde }).subscribe({
+    this.compteService.createCompte(clientId, { typeCompte, sold }).subscribe({
       next: (compte) => {
         console.log('✅ Compte créé:', compte);
         this.closeModal();

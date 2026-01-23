@@ -1,5 +1,6 @@
 import { Component, OnInit, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Chart, registerables } from 'chart.js';
 import { AuthService } from '../../../core/services/auth.service';
 import { ClientService } from '../../../core/services/client.service';
@@ -7,15 +8,14 @@ import { CompteService } from '../../../core/services/compte.service';
 import { TransactionService } from '../../../core/services/transaction.service';
 import { Client } from '../../../core/models/user.model';
 import { Compte } from '../../../core/models/compte.model';
-import {Transaction, TypeTransaction} from '../../../core/models/transaction.model';
-import { Router } from '@angular/router';
+import { Transaction, TypeTransaction } from '../../../core/models/transaction.model';
 
 Chart.register(...registerables);
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: 'dashboard.html',
   styleUrl: 'dashboard.css'
 })
@@ -36,26 +36,73 @@ export class Dashboard implements OnInit, AfterViewInit {
   comptes: Compte[] = [];
   allTransactions: Transaction[] = [];
   loading = true;
+  dataLoaded = false; // 🔥 NOUVEAU: flag pour savoir si les données sont chargées
+
+  // Modals
+  showClientModal = false;
+  showCompteModal = false;
+  showTransactionModal = false;
+
+  // Forms
+  clientForm!: FormGroup;
+  compteForm!: FormGroup;
+  transactionForm!: FormGroup;
+
+  // Form steps
+  currentStep = 1;
+  totalSteps = 3;
 
   constructor(
     private authService: AuthService,
     private clientService: ClientService,
     private compteService: CompteService,
     private transactionService: TransactionService,
-    private router: Router
+    private fb: FormBuilder
   ) {}
 
   ngOnInit(): void {
     this.loadUserInfo();
+    this.initForms();
     this.loadAllData();
   }
 
   ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.createLineChart();
-      this.createDoughnutChart();
-    }, 100);
+    // Ne rien créer ici - attendre que les données soient chargées
   }
+
+  initForms(): void {
+    // Client Form
+    this.clientForm = this.fb.group({
+      firstName: ['', [Validators.required, Validators.minLength(2)]],
+      lastName: ['', [Validators.required, Validators.minLength(2)]],
+      dateNaissance: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      confirmPassword: ['', Validators.required],
+      city: ['', Validators.required],
+      nationality: ['', Validators.required],
+      numberNationality: ['', [Validators.required, Validators.pattern(/^\d+$/)]]
+    });
+
+    // Compte Form
+    this.compteForm = this.fb.group({
+      clientId: ['', Validators.required],
+      accountType: ['COURANT', Validators.required],
+      initialBalance: [0, [Validators.required, Validators.min(0)]]
+    });
+
+    // Transaction Form
+    this.transactionForm = this.fb.group({
+      accountNumber: ['', Validators.required],
+      typeTransaction: ['DEPOT', Validators.required],
+      amount: [0, [Validators.required, Validators.min(1)]],
+      description: ['']
+    });
+  }
+
+  get cf() { return this.clientForm.controls; }
+  get cof() { return this.compteForm.controls; }
+  get tf() { return this.transactionForm.controls; }
 
   loadUserInfo(): void {
     const user = this.authService.getUser();
@@ -65,13 +112,20 @@ export class Dashboard implements OnInit, AfterViewInit {
   }
 
   loadAllData(): void {
+    this.loading = true;
+    this.dataLoaded = false;
+
     // Charger les clients
     this.clientService.getAllClients().subscribe({
       next: (clients) => {
         this.clients = clients;
         console.log('✅ Clients chargés:', clients);
+        this.checkIfDataLoaded();
       },
-      error: (error) => console.error('❌ Erreur clients:', error)
+      error: (error) => {
+        console.error('❌ Erreur clients:', error);
+        this.loading = false;
+      }
     });
 
     // Charger les comptes
@@ -80,13 +134,8 @@ export class Dashboard implements OnInit, AfterViewInit {
         this.comptes = comptes;
         console.log('✅ Comptes chargés:', comptes);
 
-        // Calculer les totaux à partir des comptes
         this.calculateFinancialData();
-
-        // Charger les transactions pour chaque compte
         this.loadAllTransactions();
-
-        this.loading = false;
       },
       error: (error) => {
         console.error('❌ Erreur comptes:', error);
@@ -96,9 +145,15 @@ export class Dashboard implements OnInit, AfterViewInit {
   }
 
   loadAllTransactions(): void {
-    if (this.comptes.length === 0) return;
+    if (this.comptes.length === 0) {
+      this.loading = false;
+      this.dataLoaded = true;
+      this.createChartsIfReady();
+      return;
+    }
 
     let loaded = 0;
+    this.allTransactions = []; // Reset
 
     this.comptes.forEach(compte => {
       this.transactionService.getAllTransactions(compte.accountNumber).subscribe({
@@ -106,26 +161,49 @@ export class Dashboard implements OnInit, AfterViewInit {
           this.allTransactions.push(...transactions);
           loaded++;
 
-          // Quand toutes les transactions sont chargées
           if (loaded === this.comptes.length) {
+            console.log('✅ Toutes les transactions chargées:', this.allTransactions);
             this.calculateMonthlyPerformance();
+            this.loading = false;
+            this.dataLoaded = true;
 
-            // CRÉER LES GRAPHIQUES ICI
-            this.createLineChart();
-            this.createDoughnutChart();
+            // 🔥 CRÉER LES GRAPHIQUES ICI APRÈS CHARGEMENT
+            this.createChartsIfReady();
           }
         },
-        error: (error) => console.error(error)
+        error: (error) => {
+          console.error('❌ Erreur transactions:', error);
+          loaded++;
+          if (loaded === this.comptes.length) {
+            this.loading = false;
+            this.dataLoaded = true;
+            this.createChartsIfReady();
+          }
+        }
       });
     });
   }
 
+  checkIfDataLoaded(): void {
+    // Vérifier si toutes les données nécessaires sont chargées
+    if (this.clients.length > 0 && this.comptes.length >= 0) {
+      this.createChartsIfReady();
+    }
+  }
+
+  createChartsIfReady(): void {
+    // Attendre un peu pour que les ViewChild soient initialisés
+    setTimeout(() => {
+      if (this.dataLoaded && this.lineChart && this.doughnutChart) {
+        this.createLineChart();
+        this.createDoughnutChart();
+        console.log('✅ Graphiques créés avec succès');
+      }
+    }, 100);
+  }
 
   calculateFinancialData(): void {
-    // Calculer le total income (somme de tous les soldes)
     this.totalIncome = this.comptes.reduce((sum, compte) => sum + compte.sold, 0);
-
-    // Calculer total paid (exemple: 35% du total income)
     this.totalPaid = this.totalIncome * 0.35;
   }
 
@@ -147,11 +225,9 @@ export class Dashboard implements OnInit, AfterViewInit {
 
       if (transaction.typeTransaction === TypeTransaction.DEPOT) {
         data.income += transaction.amount;
-      }
-      else if (transaction.typeTransaction === TypeTransaction.RETRAIT) {
+      } else if (transaction.typeTransaction === TypeTransaction.RETRAIT) {
         data.expenses += transaction.amount;
       }
-
     });
 
     this.monthlyPerformance = [];
@@ -169,44 +245,162 @@ export class Dashboard implements OnInit, AfterViewInit {
     }
   }
 
-
-  getClientComptesCount(_: string): number {
-    return this.comptes.length;
+  getClientComptesCount(clientId: string): number {
+    return this.comptes.filter(c => c.clientId === clientId).length;
   }
-
 
   getInitials(firstName: string, lastName: string): string {
     return `${firstName[0]}${lastName[0]}`.toUpperCase();
   }
 
-  viewClientComptes(clientId: string): void {
-    this.router.navigate(['/comptes'], { queryParams: { clientId } });
+  // Modal Management
+  openClientModal(): void {
+    this.showClientModal = true;
+    this.currentStep = 1;
+    this.clientForm.reset();
   }
 
-  editClient(client: Client): void {
-    this.router.navigate(['/clients/edit', client.id]);
+  closeClientModal(): void {
+    this.showClientModal = false;
+    this.currentStep = 1;
+    this.clientForm.reset();
+  }
+
+  openCompteModal(): void {
+    this.showCompteModal = true;
+    this.compteForm.reset();
+  }
+
+  closeCompteModal(): void {
+    this.showCompteModal = false;
+    this.compteForm.reset();
+  }
+
+  openTransactionModal(): void {
+    this.showTransactionModal = true;
+    this.transactionForm.reset();
+  }
+
+  closeTransactionModal(): void {
+    this.showTransactionModal = false;
+    this.transactionForm.reset();
+  }
+
+  // Client Form Steps
+  nextStep(): void {
+    if (this.currentStep < this.totalSteps && this.isStepValid(this.currentStep)) {
+      this.currentStep++;
+    }
+  }
+
+  previousStep(): void {
+    if (this.currentStep > 1) {
+      this.currentStep--;
+    }
+  }
+
+  isStepValid(step: number): boolean {
+    switch(step) {
+      case 1:
+        return !!(this.cf['firstName'].valid && this.cf['lastName'].valid && this.cf['dateNaissance'].valid);
+      case 2:
+        return !!(this.cf['email'].valid && this.cf['password'].valid &&
+          this.cf['confirmPassword'].valid &&
+          this.cf['password'].value === this.cf['confirmPassword'].value);
+      case 3:
+        return !!(this.cf['city'].valid && this.cf['nationality'].valid && this.cf['numberNationality'].valid);
+      default:
+        return false;
+    }
+  }
+
+  // Submit Forms
+  submitClient(): void {
+    if (this.clientForm.invalid) return;
+
+    const input = {
+      email: this.cf['email'].value,
+      password: this.cf['password'].value,
+      firstName: this.cf['firstName'].value,
+      lastName: this.cf['lastName'].value,
+      dateNaissance: this.cf['dateNaissance'].value,
+      city: this.cf['city'].value,
+      nationality: this.cf['nationality'].value,
+      numberNationality: parseInt(this.cf['numberNationality'].value)
+    };
+
+    this.clientService.createClient(input).subscribe({
+      next: () => {
+        alert('✅ Client créé avec succès !');
+        this.closeClientModal();
+        this.loadAllData();
+      },
+      error: (error) => alert('❌ Erreur: ' + error.message)
+    });
+  }
+
+  submitCompte(): void {
+    if (this.compteForm.invalid) return;
+
+    const clientId = this.cof['clientId'].value;
+    const input = {
+      typeCompte: this.cof['accountType'].value,
+      sold: this.cof['initialBalance'].value
+    };
+
+    // Le service attend 2 arguments: clientId et input
+    this.compteService.createCompte(clientId, input).subscribe({
+      next: () => {
+        alert('Compte créé avec succès !');
+        this.closeCompteModal();
+        this.loadAllData();
+      },
+      error: (error) => alert('❌ Erreur: ' + error.message)
+    });
+  }
+
+  submitTransaction(): void {
+    if (this.transactionForm.invalid) return;
+
+    const input = {
+      accountNumber: this.tf['accountNumber'].value,
+      typeTransaction: this.tf['typeTransaction'].value,
+      amount: this.tf['amount'].value,
+      description: this.tf['description'].value
+    };
+
   }
 
   deleteClient(clientId: string): void {
     if (confirm('Êtes-vous sûr de vouloir supprimer ce client ?')) {
       this.clientService.deleteClient(clientId).subscribe({
         next: () => {
-          console.log('✅ Client supprimé');
-          this.loadAllData(); // Recharger les données
+          alert('✅ Client supprimé');
+          this.loadAllData();
         },
-        error: (error) => console.error('❌ Erreur suppression:', error)
+        error: (error) => alert('❌ Erreur: ' + error.message)
       });
     }
   }
 
-  openAddClientModal(): void {
-    this.router.navigate(['/clients/register']);
+  deleteCompte(accountNumber: string): void {
+    if (confirm('Êtes-vous sûr de vouloir supprimer ce compte ?')) {
+      this.compteService.deleteCompte(accountNumber).subscribe({
+        next: () => {
+          alert('✅ Compte supprimé');
+          this.loadAllData();
+        },
+        error: (error) => alert('❌ Erreur: ' + error.message)
+      });
+    }
   }
 
   createLineChart(): void {
-    if (!this.lineChart) return;
+    if (!this.lineChart) {
+      console.warn('⚠️ LineChart ViewChild pas encore disponible');
+      return;
+    }
 
-    // 🔥 DÉTRUIRE L'ANCIEN GRAPHIQUE
     if (this.lineChartInstance) {
       this.lineChartInstance.destroy();
     }
@@ -246,20 +440,24 @@ export class Dashboard implements OnInit, AfterViewInit {
     });
   }
 
-
   createDoughnutChart(): void {
-    if (!this.doughnutChart) return;
+    if (!this.doughnutChart) {
+      console.warn('⚠️ DoughnutChart ViewChild pas encore disponible');
+      return;
+    }
 
     if (this.doughnutChartInstance) {
       this.doughnutChartInstance.destroy();
     }
 
+    const topComptes = this.comptes.slice(0, 3);
+
     this.doughnutChartInstance = new Chart(this.doughnutChart.nativeElement, {
       type: 'doughnut',
       data: {
-        labels: this.comptes.slice(0, 3).map(c => `${c.sold} FCFA`),
+        labels: topComptes.map(c => `${c.sold} FCFA`),
         datasets: [{
-          data: this.comptes.slice(0, 3).map(c => c.sold),
+          data: topComptes.map(c => c.sold),
           backgroundColor: ['#2d7a7b', '#4ecdc4', '#a7f3d0']
         }]
       },
@@ -270,5 +468,4 @@ export class Dashboard implements OnInit, AfterViewInit {
       }
     });
   }
-
 }

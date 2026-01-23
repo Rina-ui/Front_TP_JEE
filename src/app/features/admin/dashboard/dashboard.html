@@ -9,9 +9,6 @@
       </div>
       <select class="navbar-dropdown">
         <option>Finance Dashboard</option>
-        <option>Clients</option>
-        <option>Comptes</option>
-        <option>Transactions</option>
       </select>
     </div>
 
@@ -38,8 +35,6 @@
 
     <!-- Top Row - 3 Cards -->
     <div class="top-cards">
-
-      <!-- Card 1: VISA + Account -->
       <div class="card visa-card">
         <div class="card-mini-header">
           <div class="card-title">
@@ -74,7 +69,6 @@
         </div>
       </div>
 
-      <!-- Card 2: Financial Overview -->
       <div class="card financial-card">
         <div class="card-mini-header">
           <div class="card-title">
@@ -105,7 +99,6 @@
         </div>
       </div>
 
-      <!-- Card 3: Monthly Performance -->
       <div class="card performance-card">
         <div class="card-mini-header">
           <div class="card-title">
@@ -136,13 +129,10 @@
           </table>
         </div>
       </div>
-
     </div>
 
-    <!-- Middle Row - 3 Charts -->
+    <!-- Charts Row -->
     <div class="charts-row">
-
-      <!-- Chart 1: Financial Dashboard Overview -->
       <div class="chart-card large">
         <div class="card-header">
           <h3>
@@ -155,7 +145,6 @@
         </div>
       </div>
 
-      <!-- Chart 2: Growth Analytics -->
       <div class="chart-card small">
         <div class="card-header">
           <h3>
@@ -186,7 +175,6 @@
         </div>
       </div>
 
-      <!-- Chart 3: Annual Profits -->
       <div class="chart-card small">
         <div class="card-header">
           <h3>
@@ -212,10 +200,9 @@
           </div>
         </div>
       </div>
-
     </div>
 
-    <!-- Bottom Row - Activity Manager (Clients Table) -->
+    <!-- SECTION CLIENTS -->
     <div class="activity-card">
       <div class="activity-header">
         <div class="activity-title">
@@ -223,15 +210,7 @@
           <span>Liste des Clients</span>
         </div>
         <div class="activity-actions">
-          <button class="filter-btn">
-            <i class="fas fa-filter"></i>
-            Filtres
-          </button>
-          <button class="export-btn">
-            <i class="fas fa-file-export"></i>
-            Exporter
-          </button>
-          <button class="add-btn-primary" (click)="openAddClientModal()">
+          <button class="add-btn-primary" (click)="openClientModal()">
             <i class="fas fa-plus"></i>
             Ajouter un client
           </button>
@@ -248,10 +227,6 @@
           <div class="no-data">
             <i class="fas fa-users-slash"></i>
             <p>Aucun client trouvé</p>
-            <button class="add-btn-secondary" (click)="openAddClientModal()">
-              <i class="fas fa-plus"></i>
-              Ajouter votre premier client
-            </button>
           </div>
         } @else {
           <table class="activity-table">
@@ -280,41 +255,14 @@
                       </div>
                     </div>
                   </td>
-
-                  <td>
-                    <div class="email-cell">
-                      <i class="fas fa-envelope"></i>
-                      {{ client.email }}
-                    </div>
-                  </td>
-                  <td>
-                    <div class="city-cell">
-                      <i class="fas fa-map-marker-alt"></i>
-                      {{ client.city }}
-                    </div>
-                  </td>
+                  <td>{{ client.email }}</td>
+                  <td>{{ client.city }}</td>
                   <td>{{ client.nationality }}</td>
-                  <td>
-                    <div class="date-cell">
-                      <i class="fas fa-birthday-cake"></i>
-                      {{ client.dateNaissance | date:'dd/MM/yyyy' }}
-                    </div>
-                  </td>
-
-                  <td>
-                    <button class="view-comptes-btn"
-                            (click)="viewClientComptes(client.id)">
-                      <i class="fas fa-wallet"></i>
-                      {{ getClientComptesCount(client.id) }} compte(s)
-                    </button>
-                  </td>
-
+                  <td>{{ client.dateNaissance | date:'dd/MM/yyyy' }}</td>
+                  <td>{{ getClientComptesCount(client.id) }} compte(s)</td>
                   <td>
                     <div class="action-buttons">
-                      <button class="action-icon edit" (click)="editClient(client)" title="Modifier">
-                        <i class="fas fa-edit"></i>
-                      </button>
-                      <button class="action-icon delete" (click)="deleteClient(client.id)" title="Supprimer">
+                      <button class="action-icon delete" (click)="deleteClient(client.id)">
                         <i class="fas fa-trash"></i>
                       </button>
                     </div>
@@ -327,5 +275,323 @@
       </div>
     </div>
 
+    <!-- SECTION COMPTES -->
+    <div class="activity-card">
+      <div class="activity-header">
+        <div class="activity-title">
+          <i class="fas fa-wallet"></i>
+          <span>Liste des Comptes</span>
+        </div>
+        <div class="activity-actions">
+          <button class="add-btn-primary" (click)="openCompteModal()">
+            <i class="fas fa-plus"></i>
+            Créer un compte
+          </button>
+        </div>
+      </div>
+
+      <div class="table-container">
+        @if (comptes.length === 0) {
+          <div class="no-data">
+            <i class="fas fa-wallet"></i>
+            <p>Aucun compte trouvé</p>
+          </div>
+        } @else {
+          <table class="activity-table">
+            <thead>
+            <tr>
+              <th>N° Compte</th>
+              <th>Type</th>
+              <th>Solde</th>
+              <th>Client</th>
+              <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+              @for (compte of comptes; track compte.accountNumber) {
+                <tr class="table-row">
+                  <td><strong>{{ compte.accountNumber }}</strong></td>
+                  <td class="income-col">{{ compte.sold | number:'1.2-2' }} FCFA</td>
+                  <td>{{ compte.clientId }}</td>
+                  <td>
+                    <div class="action-buttons">
+                      <button class="action-icon delete" (click)="deleteCompte(compte.accountNumber)">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </div>
+    </div>
+
+    <!-- SECTION TRANSACTIONS -->
+    <div class="activity-card">
+      <div class="activity-header">
+        <div class="activity-title">
+          <i class="fas fa-exchange-alt"></i>
+          <span>Dernières Transactions</span>
+        </div>
+      </div>
+
+      <div class="table-container">
+        @if (allTransactions.length === 0) {
+          <div class="no-data">
+            <i class="fas fa-exchange-alt"></i>
+            <p>Aucune transaction trouvée</p>
+          </div>
+        } @else {
+          <table class="activity-table">
+            <thead>
+            <tr>
+              <th>Date</th>
+              <th>Type</th>
+              <th>Montant</th>
+              <th>N° Compte</th>
+              <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+              @for (transaction of allTransactions.slice(0, 10); track transaction.id) {
+                <tr class="table-row">
+                  <td>{{ transaction.dateTransaction | date:'dd/MM/yyyy HH:mm' }}</td>
+                  <td>
+                    <span [class]="transaction.typeTransaction === 'DEPOT' ? 'badge-success' : 'badge-danger'">
+                      {{ transaction.typeTransaction }}
+                    </span>
+                  </td>
+                  <td [class]="transaction.typeTransaction === 'DEPOT' ? 'income-col' : 'expense-col'">
+                    {{ transaction.amount | number:'1.2-2' }} FCFA
+                  </td>
+                  <td>{{ transaction.description || '-' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </div>
+    </div>
+
   </div>
+
+  <!-- MODAL CLIENT -->
+  <div class="modal-overlay" *ngIf="showClientModal" (click)="closeClientModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>
+          <i class="fas fa-user-plus"></i>
+          Nouveau Client
+        </h2>
+        <button class="close-btn" (click)="closeClientModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <!-- Progress Indicator -->
+      <div class="progress-indicator">
+        <div class="step" [class.active]="currentStep >= 1" [class.completed]="currentStep > 1">
+          <div class="step-circle">
+            <span *ngIf="currentStep > 1">✓</span>
+            <span *ngIf="currentStep <= 1">1</span>
+          </div>
+          <span class="step-label">Identité</span>
+        </div>
+        <div class="step-line" [class.completed]="currentStep > 1"></div>
+        <div class="step" [class.active]="currentStep >= 2" [class.completed]="currentStep > 2">
+          <div class="step-circle">
+            <span *ngIf="currentStep > 2">✓</span>
+            <span *ngIf="currentStep <= 2">2</span>
+          </div>
+          <span class="step-label">Connexion</span>
+        </div>
+        <div class="step-line" [class.completed]="currentStep > 2"></div>
+        <div class="step" [class.active]="currentStep >= 3">
+          <div class="step-circle">3</div>
+          <span class="step-label">Localisation</span>
+        </div>
+      </div>
+
+      <form [formGroup]="clientForm" (ngSubmit)="submitClient()">
+        <!-- Step 1 -->
+        <div class="form-step" *ngIf="currentStep === 1">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Prénom *</label>
+              <input type="text" formControlName="firstName" placeholder="Jean">
+            </div>
+            <div class="form-group">
+              <label>Nom *</label>
+              <input type="text" formControlName="lastName" placeholder="Dupont">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Date de naissance *</label>
+            <input type="date" formControlName="dateNaissance">
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="form-step" *ngIf="currentStep === 2">
+          <div class="form-group">
+            <label>Email *</label>
+            <input type="email" formControlName="email" placeholder="exemple@email.com">
+          </div>
+          <div class="form-group">
+            <label>Mot de passe *</label>
+            <input type="password" formControlName="password" placeholder="Min. 6 caractères">
+          </div>
+          <div class="form-group">
+            <label>Confirmer mot de passe *</label>
+            <input type="password" formControlName="confirmPassword">
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="form-step" *ngIf="currentStep === 3">
+          <div class="form-group">
+            <label>Ville *</label>
+            <select formControlName="city">
+              <option value="">Sélectionnez</option>
+              <option value="Lomé">Lomé</option>
+              <option value="Kara">Kara</option>
+              <option value="Sokodé">Sokodé</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Nationalité *</label>
+            <select formControlName="nationality">
+              <option value="">Sélectionnez</option>
+              <option value="Togolaise">Togolaise</option>
+              <option value="Béninoise">Béninoise</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>N° Pièce d'identité *</label>
+            <input type="text" formControlName="numberNationality" placeholder="12345678">
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" *ngIf="currentStep > 1" (click)="previousStep()">
+            Précédent
+          </button>
+          <button type="button" class="btn-primary" *ngIf="currentStep < totalSteps"
+                  (click)="nextStep()" [disabled]="!isStepValid(currentStep)">
+            Suivant
+          </button>
+          <button type="submit" class="btn-success" *ngIf="currentStep === totalSteps"
+                  [disabled]="clientForm.invalid">
+            Créer le client
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL COMPTE -->
+  <div class="modal-overlay" *ngIf="showCompteModal" (click)="closeCompteModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>
+          <i class="fas fa-wallet"></i>
+          Nouveau Compte
+        </h2>
+        <button class="close-btn" (click)="closeCompteModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <form [formGroup]="compteForm" (ngSubmit)="submitCompte()">
+        <div class="form-group">
+          <label>Client *</label>
+          <select formControlName="clientId">
+            <option value="">Sélectionnez un client</option>
+            <option *ngFor="let client of clients" [value]="client.id">
+              {{ client.firstName }} {{ client.lastName }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Type de compte *</label>
+          <select formControlName="accountType">
+            <option value="COURANT">Courant</option>
+            <option value="EPARGNE">Épargne</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Solde initial *</label>
+          <input type="number" formControlName="initialBalance" placeholder="0">
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" (click)="closeCompteModal()">
+            Annuler
+          </button>
+          <button type="submit" class="btn-success" [disabled]="compteForm.invalid">
+            Créer le compte
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL TRANSACTION -->
+  <div class="modal-overlay" *ngIf="showTransactionModal" (click)="closeTransactionModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>
+          <i class="fas fa-exchange-alt"></i>
+          Nouvelle Transaction
+        </h2>
+        <button class="close-btn" (click)="closeTransactionModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <form [formGroup]="transactionForm" (ngSubmit)="submitTransaction()">
+        <div class="form-group">
+          <label>Compte *</label>
+          <select formControlName="accountNumber">
+            <option value="">Sélectionnez un compte</option>
+            <option *ngFor="let compte of comptes" [value]="compte.accountNumber">
+              {{ compte.accountNumber }} ({{ compte.sold | number:'1.2-2' }} FCFA)
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Type *</label>
+          <select formControlName="typeTransaction">
+            <option value="DEPOT">Dépôt</option>
+            <option value="RETRAIT">Retrait</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Montant *</label>
+          <input type="number" formControlName="amount" placeholder="0">
+        </div>
+
+        <div class="form-group">
+          <label>Description</label>
+          <input type="text" formControlName="description" placeholder="Optionnel">
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" (click)="closeTransactionModal()">
+            Annuler
+          </button>
+          <button type="submit" class="btn-success" [disabled]="transactionForm.invalid">
+            Créer la transaction
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
 </div>
