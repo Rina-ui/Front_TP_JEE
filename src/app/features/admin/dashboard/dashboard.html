@@ -17,14 +17,15 @@
 
     <div class="navbar-center">
       <div class="search-box">
-        <input type="text" placeholder="Search or type">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Rechercher...">
       </div>
     </div>
 
     <div class="navbar-right">
-      <button class="icon-btn">
+      <button class="icon-btn notification-btn">
+        <i class="fas fa-bell"></i>
         <span class="badge">3</span>
-        🔔
       </button>
       <div class="profile">
         <div class="profile-avatar">{{ currentUserInitials }}</div>
@@ -41,43 +42,65 @@
       <!-- Card 1: VISA + Account -->
       <div class="card visa-card">
         <div class="card-mini-header">
-          <span class="card-icon"><span class="card-icon">
-  <i class="fas fa-credit-card"></i>
-</span>
-</span>
-          <span class="card-label">Bills</span>
+          <div class="card-title">
+            <i class="fas fa-file-invoice-dollar card-icon"></i>
+            <span class="card-label">Factures</span>
+          </div>
         </div>
         <div class="visa-section">
-          <div class="visa-logo">VISA</div>
-          <div class="visa-text">Linked to main account</div>
-          <div class="visa-number">••••  2710</div>
+          <div class="visa-logo">
+            <i class="fab fa-cc-visa"></i>
+            VISA
+          </div>
+          <div class="visa-text">Lié au compte principal</div>
+          <div class="visa-number">
+            <i class="fas fa-credit-card"></i>
+            •••• 2710
+          </div>
         </div>
         <div class="card-actions">
-          <button class="card-btn active">Receive</button>
-          <button class="card-btn">Send</button>
+          <button class="card-btn active">
+            <i class="fas fa-download"></i>
+            Recevoir
+          </button>
+          <button class="card-btn">
+            <i class="fas fa-paper-plane"></i>
+            Envoyer
+          </button>
         </div>
         <div class="balance-info">
-          <span class="balance-label">Monthly Regular Fee: $50.00</span>
+          <i class="fas fa-calendar-alt"></i>
+          <span class="balance-label">Frais mensuel: $50.00</span>
         </div>
       </div>
 
       <!-- Card 2: Financial Overview -->
       <div class="card financial-card">
         <div class="card-mini-header">
-          <span class="card-label">Financial Overview</span>
+          <div class="card-title">
+            <i class="fas fa-chart-line card-icon"></i>
+            <span class="card-label">Aperçu Financier</span>
+          </div>
           <select class="card-dropdown">
-            <option>Weekly</option>
-            <option>Monthly</option>
-            <option>Yearly</option>
+            <option>Hebdomadaire</option>
+            <option>Mensuel</option>
+            <option>Annuel</option>
           </select>
         </div>
         <div class="financial-main">
           <div class="total-income">
-            <span class="label">Total Income</span>
-            <span class="value">{{ totalIncome | number:'1.2-2' }} FCFA</span>
+            <span class="label">Revenu Total</span>
+            <div class="income-value">
+              <i class="fas fa-money-bill-wave"></i>
+              <span class="value">{{ totalIncome | number:'1.2-2' }} FCFA</span>
+            </div>
           </div>
           <div class="total-paid">
-            <span class="value-paid">{{ totalPaid | number:'1.2-2' }} FCFA</span>
+            <div class="paid-value">
+              <i class="fas fa-hand-holding-usd"></i>
+              <span class="value-paid">{{ totalPaid | number:'1.2-2' }} FCFA</span>
+            </div>
+            <span class="paid-label">Payé ce mois</span>
           </div>
         </div>
       </div>
@@ -85,26 +108,33 @@
       <!-- Card 3: Monthly Performance -->
       <div class="card performance-card">
         <div class="card-mini-header">
-          <span class="card-label">Monthly Performance</span>
+          <div class="card-title">
+            <i class="fas fa-chart-bar card-icon"></i>
+            <span class="card-label">Performance Mensuelle</span>
+          </div>
         </div>
-        <table class="performance-table">
-          <thead>
-          <tr>
-            <th>Month</th>
-            <th>Income ($)</th>
-            <th>Expenses ($)</th>
-            <th>Profit ($)</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr *ngFor="let row of monthlyPerformance">
-            <td>{{ row.month }}</td>
-            <td>{{ row.income | number:'1.0-0' }}</td>
-            <td>{{ row.expenses | number:'1.0-0' }}</td>
-            <td class="profit">{{ row.profit | number:'1.0-0' }}</td>
-          </tr>
-          </tbody>
-        </table>
+        <div class="table-container-small">
+          <table class="performance-table">
+            <thead>
+            <tr>
+              <th>Mois</th>
+              <th>Revenu ($)</th>
+              <th>Dépenses ($)</th>
+              <th>Profit ($)</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let row of monthlyPerformance">
+              <td>{{ row.month }}</td>
+              <td class="income-col">{{ row.income | number:'1.0-0' }}</td>
+              <td class="expense-col">{{ row.expenses | number:'1.0-0' }}</td>
+              <td [class]="row.profit >= 0 ? 'profit-col positive' : 'profit-col negative'">
+                {{ row.profit | number:'1.0-0' }}
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
     </div>
@@ -115,7 +145,10 @@
       <!-- Chart 1: Financial Dashboard Overview -->
       <div class="chart-card large">
         <div class="card-header">
-          <h3>Financial Dashboard Overview</h3>
+          <h3>
+            <i class="fas fa-chart-area"></i>
+            Aperçu du Tableau de Bord
+          </h3>
         </div>
         <div class="chart-container">
           <canvas #lineChart></canvas>
@@ -125,21 +158,30 @@
       <!-- Chart 2: Growth Analytics -->
       <div class="chart-card small">
         <div class="card-header">
-          <h3>Growth Analytics</h3>
+          <h3>
+            <i class="fas fa-chart-pie"></i>
+            Analyse de Croissance
+          </h3>
         </div>
         <div class="gauge-container">
           <div class="gauge-circle">
             <svg viewBox="0 0 200 200">
-              <circle cx="100" cy="100" r="80" fill="none" stroke="#e5e7eb" stroke-width="20"/>
-              <circle cx="100" cy="100" r="80" fill="none" stroke="#2d7a7b" stroke-width="20"
+              <circle cx="100" cy="100" r="80" fill="none" stroke="#2a2a2a" stroke-width="20"/>
+              <circle cx="100" cy="100" r="80" fill="none" stroke="#000000" stroke-width="20"
                       stroke-dasharray="440" stroke-dashoffset="110"
                       transform="rotate(-90 100 100)"/>
             </svg>
             <div class="gauge-value">25%</div>
           </div>
           <div class="gauge-footer">
-            <span class="gauge-label">Year over Year</span>
-            <span class="gauge-trend">+36%</span>
+            <div class="gauge-info">
+              <i class="fas fa-calendar"></i>
+              <span class="gauge-label">Année sur année</span>
+            </div>
+            <span class="gauge-trend positive">
+              <i class="fas fa-arrow-up"></i>
+              +36%
+            </span>
           </div>
         </div>
       </div>
@@ -147,10 +189,27 @@
       <!-- Chart 3: Annual Profits -->
       <div class="chart-card small">
         <div class="card-header">
-          <h3>Annual Profits 2023</h3>
+          <h3>
+            <i class="fas fa-coins"></i>
+            Profits Annuels
+          </h3>
         </div>
         <div class="chart-container">
           <canvas #doughnutChart></canvas>
+        </div>
+        <div class="chart-legend">
+          <div class="legend-item">
+            <span class="legend-color" style="background-color: #000000;"></span>
+            <span>Compte Courant</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-color" style="background-color: #333333;"></span>
+            <span>Épargne</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-color" style="background-color: #666666;"></span>
+            <span>Investissement</span>
+          </div>
         </div>
       </div>
 
@@ -160,55 +219,111 @@
     <div class="activity-card">
       <div class="activity-header">
         <div class="activity-title">
+          <i class="fas fa-users"></i>
           <span>Liste des Clients</span>
         </div>
         <div class="activity-actions">
-          <button class="filter-btn">⚙️</button>
-          <button class="filter-btn">✕</button>
-          <button class="filter-btn">Filters</button>
+          <button class="filter-btn">
+            <i class="fas fa-filter"></i>
+            Filtres
+          </button>
+          <button class="export-btn">
+            <i class="fas fa-file-export"></i>
+            Exporter
+          </button>
           <button class="add-btn-primary" (click)="openAddClientModal()">
-            + Ajouter un client
+            <i class="fas fa-plus"></i>
+            Ajouter un client
           </button>
         </div>
       </div>
 
       <div class="table-container">
-        <table class="activity-table">
-          <thead>
-          <tr>
-            <th>Nom</th>
-            <th>Email</th>
-            <th>Ville</th>
-            <th>Nationalité</th>
-            <th>Date de naissance</th>
-            <th>Comptes</th>
-            <th>Actions</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr *ngFor="let client of clients" class="table-row">
-            <td>
-              <div class="user-cell">
-                <div class="user-avatar">{{ getInitials(client.firstName, client.lastName) }}</div>
-                <span>{{ client.firstName }} {{ client.lastName }}</span>
-              </div>
-            </td>
-            <td>{{ client.email }}</td>
-            <td>{{ client.city }}</td>
-            <td>{{ client.nationality }}</td>
-            <td>{{ client.dateNaissance | date:'dd/MM/yyyy' }}</td>
-            <td>
-              <button class="view-comptes-btn" (click)="viewClientComptes(client.id)">
-                {{ getClientComptesCount(client.id) }} compte(s)
-              </button>
-            </td>
-            <td>
-              <button class="action-icon" (click)="editClient(client)">✏️</button>
-              <button class="action-icon" (click)="deleteClient(client.id)">🗑️</button>
-            </td>
-          </tr>
-          </tbody>
-        </table>
+        @if (loading) {
+          <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Chargement des clients...</p>
+          </div>
+        } @else if (clients.length === 0) {
+          <div class="no-data">
+            <i class="fas fa-users-slash"></i>
+            <p>Aucun client trouvé</p>
+            <button class="add-btn-secondary" (click)="openAddClientModal()">
+              <i class="fas fa-plus"></i>
+              Ajouter votre premier client
+            </button>
+          </div>
+        } @else {
+          <table class="activity-table">
+            <thead>
+            <tr>
+              <th>Client</th>
+              <th>Email</th>
+              <th>Ville</th>
+              <th>Nationalité</th>
+              <th>Date de naissance</th>
+              <th>Comptes</th>
+              <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+              @for (client of clients; track client.id) {
+                <tr class="table-row">
+                  <td>
+                    <div class="user-cell">
+                      <div class="user-avatar">
+                        {{ getInitials(client.firstName, client.lastName) }}
+                      </div>
+                      <div class="user-info">
+                        <span class="user-name">{{ client.firstName }} {{ client.lastName }}</span>
+                        <span class="user-id">ID: {{ client.id }}</span>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td>
+                    <div class="email-cell">
+                      <i class="fas fa-envelope"></i>
+                      {{ client.email }}
+                    </div>
+                  </td>
+                  <td>
+                    <div class="city-cell">
+                      <i class="fas fa-map-marker-alt"></i>
+                      {{ client.city }}
+                    </div>
+                  </td>
+                  <td>{{ client.nationality }}</td>
+                  <td>
+                    <div class="date-cell">
+                      <i class="fas fa-birthday-cake"></i>
+                      {{ client.dateNaissance | date:'dd/MM/yyyy' }}
+                    </div>
+                  </td>
+
+                  <td>
+                    <button class="view-comptes-btn"
+                            (click)="viewClientComptes(client.id)">
+                      <i class="fas fa-wallet"></i>
+                      {{ getClientComptesCount(client.id) }} compte(s)
+                    </button>
+                  </td>
+
+                  <td>
+                    <div class="action-buttons">
+                      <button class="action-icon edit" (click)="editClient(client)" title="Modifier">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button class="action-icon delete" (click)="deleteClient(client.id)" title="Supprimer">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
       </div>
     </div>
 

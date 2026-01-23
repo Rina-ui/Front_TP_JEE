@@ -20,6 +20,10 @@ Chart.register(...registerables);
   styleUrl: 'dashboard.css'
 })
 export class Dashboard implements OnInit, AfterViewInit {
+
+  lineChartInstance?: Chart;
+  doughnutChartInstance?: Chart;
+
   @ViewChild('lineChart') lineChart!: ElementRef<HTMLCanvasElement>;
   @ViewChild('doughnutChart') doughnutChart!: ElementRef<HTMLCanvasElement>;
 
@@ -92,21 +96,30 @@ export class Dashboard implements OnInit, AfterViewInit {
   }
 
   loadAllTransactions(): void {
-    if (this.comptes.length === 0) {
-      return;
-    }
+    if (this.comptes.length === 0) return;
+
+    let loaded = 0;
 
     this.comptes.forEach(compte => {
-      // Utiliser numeroCompte au lieu de accountNumber
       this.transactionService.getAllTransactions(compte.accountNumber).subscribe({
         next: (transactions) => {
           this.allTransactions.push(...transactions);
-          this.calculateMonthlyPerformance();
+          loaded++;
+
+          // Quand toutes les transactions sont chargées
+          if (loaded === this.comptes.length) {
+            this.calculateMonthlyPerformance();
+
+            // CRÉER LES GRAPHIQUES ICI
+            this.createLineChart();
+            this.createDoughnutChart();
+          }
         },
-        error: (error) => console.error('❌ Erreur transactions:', error)
+        error: (error) => console.error(error)
       });
     });
   }
+
 
   calculateFinancialData(): void {
     // Calculer le total income (somme de tous les soldes)
@@ -157,10 +170,6 @@ export class Dashboard implements OnInit, AfterViewInit {
   }
 
 
-  // getClientComptesCount(clientId: string): number {
-  //   return this.comptes.filter(c => c.clientId === clientId).length;
-  // }
-
   getClientComptesCount(_: string): number {
     return this.comptes.length;
   }
@@ -197,37 +206,34 @@ export class Dashboard implements OnInit, AfterViewInit {
   createLineChart(): void {
     if (!this.lineChart) return;
 
-    const labels = this.monthlyPerformance.map(m => m.month);
-    const incomeData = this.monthlyPerformance.map(m => m.income);
-    const expensesData = this.monthlyPerformance.map(m => m.expenses);
-    const profitData = this.monthlyPerformance.map(m => m.profit);
+    // 🔥 DÉTRUIRE L'ANCIEN GRAPHIQUE
+    if (this.lineChartInstance) {
+      this.lineChartInstance.destroy();
+    }
 
-    new Chart(this.lineChart.nativeElement, {
+    this.lineChartInstance = new Chart(this.lineChart.nativeElement, {
       type: 'line',
       data: {
-        labels,
+        labels: this.monthlyPerformance.map(m => m.month),
         datasets: [
           {
             label: 'Expenses',
-            data: expensesData,
+            data: this.monthlyPerformance.map(m => m.expenses),
             borderColor: '#ef4444',
-            backgroundColor: 'rgba(239, 68, 68, 0.1)',
             tension: 0.4,
             fill: true
           },
           {
             label: 'Income',
-            data: incomeData,
+            data: this.monthlyPerformance.map(m => m.income),
             borderColor: '#2d7a7b',
-            backgroundColor: 'rgba(45, 122, 123, 0.1)',
             tension: 0.4,
             fill: true
           },
           {
             label: 'Profit',
-            data: profitData,
+            data: this.monthlyPerformance.map(m => m.profit),
             borderColor: '#f59e0b',
-            backgroundColor: 'rgba(245, 158, 11, 0.1)',
             tension: 0.4,
             fill: true
           }
@@ -235,60 +241,34 @@ export class Dashboard implements OnInit, AfterViewInit {
       },
       options: {
         responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'bottom',
-            labels: {
-              usePointStyle: true,
-              padding: 20
-            }
-          }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            grid: {
-              color: '#f3f4f6'
-            }
-          },
-          x: {
-            grid: {
-              display: false
-            }
-          }
-        }
+        maintainAspectRatio: false
       }
     });
   }
 
+
   createDoughnutChart(): void {
     if (!this.doughnutChart) return;
 
-    // Calculer les données du doughnut à partir des comptes
-    const comptesData = this.comptes.slice(0, 3).map(c => c.sold);
-    const labels = this.comptes.slice(0, 3).map(c => `${c.sold.toFixed(0)} FCFA`);
+    if (this.doughnutChartInstance) {
+      this.doughnutChartInstance.destroy();
+    }
 
-    new Chart(this.doughnutChart.nativeElement, {
+    this.doughnutChartInstance = new Chart(this.doughnutChart.nativeElement, {
       type: 'doughnut',
       data: {
-        labels,
+        labels: this.comptes.slice(0, 3).map(c => `${c.sold} FCFA`),
         datasets: [{
-          data: comptesData,
-          backgroundColor: ['#2d7a7b', '#4ecdc4', '#a7f3d0'],
-          borderWidth: 0
+          data: this.comptes.slice(0, 3).map(c => c.sold),
+          backgroundColor: ['#2d7a7b', '#4ecdc4', '#a7f3d0']
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: false
-          }
-        },
         cutout: '75%'
       }
     });
   }
+
 }
