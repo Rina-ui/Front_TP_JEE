@@ -1,23 +1,28 @@
-<div class="login-container">
+<div class="login-container" @pageTransition>
 
   <!-- PARTIE GAUCHE - FORMULAIRE -->
-  <div class="login-left">
+  <div class="login-left" @slideInLeft>
     <div class="login-form-wrapper">
 
-      <!-- Logo -->
-      <div class="logo">
+      <!-- Logo avec animation -->
+      <div class="logo" @fadeInUp>
         <div class="logo-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <path d="M3 3h18v18H3z"/>
-            <path d="M3 9h18M9 3v18"/>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#0d9488"/>
+            <path d="M2 17L12 22L22 17" stroke="#0d9488" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 12L12 17L22 12" stroke="#0d9488" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
         <span class="logo-text">EgaBank</span>
+        <div class="logo-pulse"></div>
       </div>
 
-      <!-- Titre -->
-      <div class="welcome-section">
-        <h1>Welcome to EgaBank</h1>
+      <!-- Titre avec animation -->
+      <div class="welcome-section" @fadeInUp>
+        <div class="welcome-animation">
+          <h1>Welcome to EgaBank</h1>
+          <div class="welcome-underline"></div>
+        </div>
         <p>Sign in to access your financial dashboard.</p>
       </div>
 
@@ -25,62 +30,57 @@
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
 
         <!-- Email -->
-        <div class="form-group">
+        <div class="form-group" @fadeInUp>
           <label>Email Address <span class="required">*</span></label>
-          <div class="input-wrapper">
-            <svg class="input-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-              <polyline points="22,6 12,13 2,6"/>
-            </svg>
+          <div class="input-wrapper" [class.focused]="email?.dirty">
+            <i class="input-icon fas fa-envelope"></i>
             <input
               type="email"
               formControlName="email"
               placeholder="Enter your email address"
-              [class.error]="email?.invalid && email?.touched">
+              [class.error]="email?.invalid && email?.touched"
+              (focus)="onInputFocus($event)"
+              (blur)="onInputBlur($event)">
+            <div class="input-ripple"></div>
           </div>
           <div *ngIf="email?.invalid && email?.touched" class="error-message">
+            <i class="fas fa-exclamation-circle"></i>
             <span *ngIf="email?.errors?.['required']">Email is required</span>
             <span *ngIf="email?.errors?.['email']">Please enter a valid email</span>
           </div>
         </div>
 
         <!-- Password -->
-        <div class="form-group">
+        <div class="form-group" @fadeInUp>
           <label>Password <span class="required">*</span></label>
-          <div class="input-wrapper">
-            <svg class="input-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-            </svg>
+          <div class="input-wrapper" [class.focused]="password?.dirty">
+            <i class="input-icon fas fa-lock"></i>
             <input
               [type]="hidePassword ? 'password' : 'text'"
               formControlName="password"
               placeholder="Enter your password"
-              [class.error]="password?.invalid && password?.touched">
+              [class.error]="password?.invalid && password?.touched"
+              (focus)="onInputFocus($event)"
+              (blur)="onInputBlur($event)">
             <button
               type="button"
               class="password-toggle"
-              (click)="togglePasswordVisibility()">
-              <!-- Oeil ouvert -->
-              <svg *ngIf="hidePassword" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                <circle cx="12" cy="12" r="3"/>
-              </svg>
-              <!-- Oeil barré -->
-              <svg *ngIf="!hidePassword" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
-                <line x1="1" y1="1" x2="23" y2="23"/>
-              </svg>
+              (click)="togglePasswordVisibility()"
+              [class.active]="!hidePassword">
+              <i class="fas" [class.fa-eye]="hidePassword" [class.fa-eye-slash]="!hidePassword"></i>
             </button>
+            <div class="input-ripple"></div>
           </div>
           <div *ngIf="password?.invalid && password?.touched" class="error-message">
+            <i class="fas fa-exclamation-circle"></i>
             <span *ngIf="password?.errors?.['required']">Password is required</span>
             <span *ngIf="password?.errors?.['minlength']">Password must be at least 6 characters</span>
           </div>
         </div>
 
         <!-- Message d'erreur serveur -->
-        <div *ngIf="errorMessage" class="server-error">
+        <div *ngIf="errorMessage" class="server-error" @fadeInUp>
+          <i class="fas fa-exclamation-triangle"></i>
           {{ errorMessage }}
         </div>
 
@@ -88,20 +88,32 @@
         <button
           type="submit"
           class="btn-submit"
-          [disabled]="loginForm.invalid || isLoading">
-          <span *ngIf="!isLoading">Sign In</span>
-          <span *ngIf="isLoading">Signing in...</span>
+          [disabled]="loginForm.invalid || isLoading || isTransitioning"
+          @fadeInUp>
+          <span *ngIf="!isLoading && !isTransitioning">
+            <i class="fas fa-sign-in-alt"></i>
+            Sign In
+          </span>
+          <span *ngIf="isLoading">
+            <div class="spinner"></div>
+            Signing in...
+          </span>
+          <span *ngIf="isTransitioning">
+            <i class="fas fa-rocket"></i>
+            Redirecting...
+          </span>
+          <div class="btn-glow"></div>
         </button>
 
       </form>
 
       <!-- Footer -->
-      <div class="footer">
+      <div class="footer" @fadeInUp>
         <p>Copyright - EgaBank, All Rights Reserved</p>
         <div class="footer-links">
-          <a href="#">Terms & Condition</a>
+          <a href="#"><i class="fas fa-file-contract"></i> Terms & Condition</a>
           <span>•</span>
-          <a href="#">Privacy & Policy</a>
+          <a href="#"><i class="fas fa-shield-alt"></i> Privacy & Policy</a>
         </div>
       </div>
 
@@ -109,16 +121,80 @@
   </div>
 
   <!-- PARTIE DROITE - HERO -->
-  <div class="login-right">
+  <div class="login-right" @heroFloat>
     <div class="hero-content">
-      <div class="hero-icon">💰</div>
-      <h2>A Unified Hub for Smarter Financial Decision-Making</h2>
-      <p>EgaBank empowers you with a unified financial command center—delivering deep insights and a 360° view of your entire economic world.</p>
 
-      <div class="dots">
-        <span class="dot active"></span>
-        <span class="dot"></span>
+      <!-- Animated Hero Icon -->
+      <div class="hero-icon">
+        <div class="icon-container">
+          <i class="fas fa-chart-network"></i>
+          <div class="icon-ring"></div>
+          <div class="icon-particles">
+            <div class="particle particle-1"></div>
+            <div class="particle particle-2"></div>
+            <div class="particle particle-3"></div>
+            <div class="particle particle-4"></div>
+          </div>
+        </div>
       </div>
+
+      <!-- Animated Title -->
+      <div class="hero-title">
+        <h2>A Unified Hub for Smarter Financial Decision-Making</h2>
+        <div class="title-underline"></div>
+      </div>
+
+      <!-- Animated Text -->
+      <p class="hero-text">
+        <span class="text-reveal">EgaBank empowers you with a unified financial command center</span>
+        <span class="text-reveal">—delivering deep insights and a 360° view of your entire economic world.</span>
+      </p>
+
+      <!-- Animated Dots -->
+      <div class="dots">
+        <span class="dot active">
+          <div class="dot-inner"></div>
+        </span>
+        <span class="dot">
+          <div class="dot-inner"></div>
+        </span>
+      </div>
+
+      <!-- Floating Elements -->
+      <div class="floating-elements">
+        <div class="floating-element element-1">
+          <i class="fas fa-chart-line"></i>
+        </div>
+        <div class="floating-element element-2">
+          <i class="fas fa-wallet"></i>
+        </div>
+        <div class="floating-element element-3">
+          <i class="fas fa-shield-alt"></i>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Background Particles -->
+    <div class="background-particles">
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+    </div>
+  </div>
+
+  <!-- Transition Overlay -->
+  <div *ngIf="isTransitioning" class="transition-overlay">
+    <div class="transition-content">
+      <div class="transition-spinner">
+        <div class="spinner-ring"></div>
+        <div class="spinner-ring"></div>
+        <div class="spinner-ring"></div>
+      </div>
+      <h3>Welcome to Your Dashboard</h3>
+      <p>Preparing your financial insights...</p>
     </div>
   </div>
 

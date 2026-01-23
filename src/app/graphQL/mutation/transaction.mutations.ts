@@ -4,8 +4,8 @@ export const VERSEMENT_MUTATION = gql`
   mutation Versement($input: VersementInput!) {
     versement(input: $input) {
       id
-      type
-      montant
+      typeTransaction
+      amount
       dateTransaction
       soldeApres
     }
@@ -16,8 +16,8 @@ export const RETRAIT_MUTATION = gql`
   mutation Retrait($input: RetraitInput!) {
     retrait(input: $input) {
       id
-      type
-      montant
+      typeTransaction
+      amount
       dateTransaction
       soldeApres
     }

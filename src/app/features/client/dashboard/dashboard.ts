@@ -250,7 +250,37 @@ export class ClientDashboard implements OnInit {
   }
 
   downloadPDF(): void {
-    alert('Téléchargement du relevé PDF en cours...');
+    if (!this.selectedCompte) {
+      alert('Veuillez sélectionner un compte');
+      return;
+    }
+
+    // Période du dernier mois
+    const dateFin = new Date();
+    const dateDebut = new Date();
+    dateDebut.setMonth(dateDebut.getMonth() - 1);
+
+    const loading = document.createElement('div');
+    loading.textContent = 'Génération du relevé en cours...';
+    loading.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 9999;';
+    document.body.appendChild(loading);
+
+    this.transactionService.genererReleve(
+      this.selectedCompte.accountNumber,
+      dateDebut.toISOString(),
+      dateFin.toISOString()
+    ).subscribe({
+      next: (releve) => {
+        document.body.removeChild(loading);
+        const filename = `releve_${this.selectedCompte!.accountNumber}_${dateDebut.toISOString().split('T')[0]}_${dateFin.toISOString().split('T')[0]}.pdf`;
+        this.transactionService.downloadPdf(releve.pdfBase64, filename);
+      },
+      error: (err) => {
+        document.body.removeChild(loading);
+        console.error('Erreur génération relevé:', err);
+        alert('Erreur lors de la génération du relevé: ' + (err.message || 'Erreur inconnue'));
+      }
+    });
   }
 
   toggleActionMenu(): void {
@@ -311,7 +341,7 @@ export class ClientDashboard implements OnInit {
       case 'versement':
         const versementInput: VersementInput = {
           numeroCompte: this.selectedCompte.accountNumber,
-          montant: amount
+          amount: amount
         };
         this.transactionService.versement(versementInput).subscribe({
           next: () => {
@@ -328,7 +358,7 @@ export class ClientDashboard implements OnInit {
       case 'retrait':
         const retraitInput: RetraitInput = {
           numeroCompte: this.selectedCompte.accountNumber,
-          montant: amount
+          amount: amount
         };
         this.transactionService.retrait(retraitInput).subscribe({
           next: () => {
@@ -347,7 +377,7 @@ export class ClientDashboard implements OnInit {
         const virementInput: VirementInput = {
           numeroCompteSource: this.selectedCompte.accountNumber,
           numeroCompteDestination: numeroCompteDestinataire,
-          montant: amount
+          amount: amount
         };
         this.transactionService.virement(virementInput).subscribe({
           next: () => {

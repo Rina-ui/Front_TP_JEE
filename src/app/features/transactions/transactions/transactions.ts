@@ -107,12 +107,12 @@ export class Transactions implements OnInit {
   onSubmit(): void {
     if (this.transactionForm.invalid) return;
 
-    const montant = this.transactionForm.value.montant;
+    const amount = this.transactionForm.value.amount;
 
     if (this.modalType === 'VERSEMENT') {
       this.transactionService.versement({
         numeroCompte: this.numeroCompte,
-        montant
+        amount
       }).subscribe({
         next: () => this.handleSuccess(),
         error: (error) => console.error('❌ Erreur:', error)
@@ -120,7 +120,7 @@ export class Transactions implements OnInit {
     } else if (this.modalType === 'RETRAIT') {
       this.transactionService.retrait({
         numeroCompte: this.numeroCompte,
-        montant
+        amount
       }).subscribe({
         next: () => this.handleSuccess(),
         error: (error) => console.error('❌ Erreur:', error)
@@ -129,7 +129,7 @@ export class Transactions implements OnInit {
       this.transactionService.virement({
         numeroCompteSource: this.numeroCompte,
         numeroCompteDestination: this.transactionForm.value.numeroCompteDestination,
-        montant
+        amount
       }).subscribe({
         next: () => this.handleSuccess(),
         error: (error) => console.error('❌ Erreur:', error)

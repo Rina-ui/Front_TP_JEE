@@ -18,19 +18,19 @@ export interface Transaction {
 
 export interface VersementInput {
   numeroCompte: string;
-  montant: number;
+  amount: number;
   description?: string;
 }
 
 export interface RetraitInput {
   numeroCompte: string;
-  montant: number;
+  amount: number;
   description?: string;
 }
 
 export interface VirementInput {
   numeroCompteSource: string;
   numeroCompteDestination: string;
-  montant: number;
+  amount: number;
   description?: string;
 }
